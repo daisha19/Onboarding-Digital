@@ -39,30 +39,21 @@ O sistema tem como objetivo digitalizar o processo de admissão de novos colabor
 # Tecnologias Utilizadas
 
 ## Frontend
-- React 18
+- React
 - Vite
 - TypeScript
 - Tailwind CSS
-- React Router
-- Axios
-- React Hook Form
 
 ## Backend
-- Python 3.11
+- Python 
 - FastAPI
 - SQLAlchemy
-- Alembic
-- JWT Authentication
-- bcrypt
-
-## Banco de Dados
 - PostgreSQL 15
 
 ## Infraestrutura
 - Docker
 - Docker Compose
-- Google Cloud Run
-- Google Cloud Storage
+- Google Cloud Platform
 
 ## CI/CD
 - GitHub Actions
