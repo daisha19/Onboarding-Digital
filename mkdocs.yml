@@ -1,0 +1,17 @@
+site_name: Digital Onboarding System
+
+theme:
+  name: material
+
+  palette:
+    scheme: slate
+    primary: navy
+    accent: blue
+
+nav:
+  - Home: index.md
+  - MVP: MVP.md
+  - Requisitos: Requisitos.md
+  - Planejamento: Planejamento Semanal.md
+  - Reuniões: Reuniões.md
+  - Stacks: Stacks utilizadas.md
