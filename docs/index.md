@@ -4,7 +4,7 @@
 
 Este sistema foi desenvolvido para o projeto de extensão **AILAB Makers**, da Universidade de Brasília (UnB/FCTE).
 
-O **Digital Onboarding System** é uma plataforma web voltada para departamentos de Recursos Humanos (RH), com o objetivo de digitalizar e automatizar o processo de admissão de novos colaboradores.
+O **OnBoarding Digital** é uma plataforma web voltada para departamentos de Recursos Humanos (RH), com o objetivo de digitalizar e automatizar o processo de admissão de novos colaboradores.
 
 A plataforma permite que colaboradores realizem o envio de documentos admissionais de forma segura e centralizada, enquanto a equipe de RH pode acompanhar, validar e gerenciar todas as informações em um único ambiente.
 
@@ -87,6 +87,6 @@ A arquitetura adotada prioriza:
 
 | Versão | Descrição | Autor | Data |
 |---|---|---|---|
-| 1.0 | Criação inicial da documentação | Equipe | 24/05/2026 |
+| 1.0 | Criação inicial da documentação | [Raissa Silva](https://github.com/daisha19) | 24/05/2026 |
 
 ---
