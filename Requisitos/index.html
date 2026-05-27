@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../MVP/">
+        <link rel="prev" href="..">
       
       
         <link rel="next" href="../Planejamento%20Semanal/">
@@ -70,6 +70,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#requisitos-de-software" class="md-skip">
+          Skip to content
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -226,7 +231,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../MVP/" class="md-nav__link">
+      <a href="../MVP.md" class="md-nav__link">
         
   
   
@@ -259,6 +264,26 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -276,6 +301,47 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos Funcionais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos Não Funcionais
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -379,6 +445,38 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos Funcionais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requisitos-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requisitos Não Funcionais
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -395,9 +493,193 @@
 
 
 
-  <h1>Requisitos</h1>
-
-
+<h1 id="requisitos-de-software">Requisitos de Software</h1>
+<h2 id="requisitos-funcionais">Requisitos Funcionais</h2>
+<p>Os requisitos funcionais descrevem as funcionalidades e comportamentos que o sistema de Onboarding Digital deve executar. Eles representam as ações, serviços e operações disponibilizadas aos usuários, garantindo que o sistema atenda às necessidades do processo de cadastro, autenticação e gerenciamento das informações.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requisito</th>
+<th>Prioridade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RF01</td>
+<td>Permitir cadastro de usuários com perfil de colaborador</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF02</td>
+<td>Permitir cadastro de usuários com perfil de RH</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF03</td>
+<td>Permitir autenticação utilizando e-mail e senha</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF04</td>
+<td>Armazenar senhas utilizando criptografia bcrypt</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF05</td>
+<td>Gerar token JWT após autenticação válida</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF06</td>
+<td>Impedir acesso ao sistema com credenciais inválidas</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF07</td>
+<td>Permitir upload de documentos admissionais em formato PDF ou imagem</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF08</td>
+<td>Validar tamanho máximo permitido para upload de arquivos</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RF09</td>
+<td>Permitir visualização apenas dos documentos do usuário autenticado</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF10</td>
+<td>Permitir que usuários do RH visualizem documentos de todos os colaboradores</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF11</td>
+<td>Permitir listagem de documentos enviados pelo colaborador</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RF12</td>
+<td>Permitir download de documentos armazenados</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RF13</td>
+<td>Registrar metadados dos documentos enviados (nome, tipo, data e usuário)</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF14</td>
+<td>Registrar logs de login e logout dos usuários</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RF15</td>
+<td>Registrar logs de upload e download de documentos</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RF16</td>
+<td>Permitir que o RH aprove documentos enviados</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF17</td>
+<td>Permitir que o RH solicite reenvio de documentos inválidos</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF18</td>
+<td>Exibir status do documento (pendente, aprovado ou rejeitado)</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RF19</td>
+<td>Permitir atualização de documentos enviados anteriormente</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RF20</td>
+<td>Notificar o colaborador sobre alterações no status dos documentos</td>
+<td>Baixa</td>
+</tr>
+</tbody>
+</table>
+<h2 id="requisitos-nao-funcionais">Requisitos Não Funcionais</h2>
+<p>Os requisitos não funcionais definem os critérios de qualidade e restrições do sistema de Onboarding Digital. Eles estão relacionados ao desempenho, segurança, usabilidade, confiabilidade e outros aspectos que garantem o funcionamento adequado e a boa experiência dos usuários durante a utilização da plataforma.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requisito</th>
+<th>Prioridade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RNF01</td>
+<td>Os arquivos enviados pelos usuários devem ser armazenados utilizando Google Cloud Storage</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RNF02</td>
+<td>O sistema deve utilizar banco de dados PostgreSQL hospedado em ambiente de nuvem</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RNF03</td>
+<td>A aplicação deve suportar execução em containers Docker para ambientes de desenvolvimento e produção</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RNF04</td>
+<td>O sistema deve possuir pipeline CI/CD automatizada utilizando GitHub Actions</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RNF05</td>
+<td>O sistema deve garantir isolamento de dados entre usuários autenticados</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RNF06</td>
+<td>O sistema deve registrar logs auditáveis das principais operações realizadas</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RNF07</td>
+<td>O sistema deve utilizar comunicação segura via HTTPS</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RNF08</td>
+<td>O sistema deve armazenar senhas utilizando criptografia bcrypt</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>RNF09</td>
+<td>O tempo de resposta das operações principais deve ser inferior a 2 segundos</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RNF10</td>
+<td>O projeto deve possuir documentação atualizada contendo setup, arquitetura e variáveis de ambiente</td>
+<td>Média</td>
+</tr>
+<tr>
+<td>RNF11</td>
+<td>O sistema deve ser compatível com navegadores modernos (Chrome, Edge e Firefox)</td>
+<td>Baixa</td>
+</tr>
+<tr>
+<td>RNF12</td>
+<td>O sistema deve possuir arquitetura escalável para suportar múltiplos usuários simultaneamente</td>
+<td>Baixa</td>
+</tr>
+</tbody>
+</table>
 
 
 
