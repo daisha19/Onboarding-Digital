@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15
+    container_name: onboarding_db
+    restart: always
+    environment:
+      POSTGRES_DB: onboarding_db
+      POSTGRES_USER: onboarding_user
+      POSTGRES_PASSWORD: onboarding_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: onboarding_backend
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      DATABASE_URL: postgresql://onboarding_user:onboarding_pass@db:5432/onboarding_db
+
+volumes:
+  postgres_data:

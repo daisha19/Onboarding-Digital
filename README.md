@@ -111,6 +111,13 @@ https://www.docker.com/products/docker-desktop/
 
 ---
 
+# Como executar o projeto com Docker
+
+Após instalar os pré-requisitos, execute o seguinte comando na raiz do projeto:
+
+```bash
+docker compose up --build
+
 # Status do Projeto
 
 🚧 Em desenvolvimento
