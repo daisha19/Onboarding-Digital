@@ -54,7 +54,7 @@
 
 ## Visão Geral
 
-O **OnBoarding Digital** foi desenvolvido no projeto de extensão **AILAB Makers - UnB FCTE** para modernizar o processo de admissão de colaboradores.
+Projeto desenvolvido no projeto de extensão AILAB Makers — UnB FCTE.
 
 O produto substitui etapas manuais baseadas em e-mails, planilhas e arquivos espalhados por um fluxo digital com autenticação, controle de acesso, upload seguro de documentos e registros de auditoria.
 

@@ -2,7 +2,7 @@
 
 Sistema web para onboarding digital de colaboradores, criado para apoiar equipes de RH no recebimento, gerenciamento e auditoria de documentos admissionais em um ambiente seguro e centralizado.
 
-Projeto desenvolvido no projeto de extensão **AILAB Makers - UnB FCTE**.
+Projeto desenvolvido no projeto de extensão AILAB Makers — UnB FCTE.
 
 ---
 
@@ -98,4 +98,4 @@ refactor: reorganize backend structure
 
 ## Licença
 
-Projeto acadêmico desenvolvido para fins educacionais.
+Projeto desenvolvido no projeto de extensão AILAB Makers — UnB FCTE.
