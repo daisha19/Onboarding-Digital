@@ -66,7 +66,7 @@ refactor: reorganize backend structure
       DevOps / Organização / Liderança
     </td>
     <td align="center">
-      <img src="https://github.com/USUARIO_GITHUB_GUILHERME.png" width="120" style="border-radius:50%;" alt="Guilherme Negreiros" /><br>
+      <img src="https://github.com/guin409.png" width="120" style="border-radius:50%;" alt="Guilherme Negreiros" /><br>
       <b>Guilherme Negreiros Pereira</b><br>
       Desenvolvimento
     </td>
