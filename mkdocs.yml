@@ -2,16 +2,16 @@ site_name: OnBoarding Digital
 
 theme:
   name: material
-
+  language: pt-BR
   palette:
     scheme: slate
-    primary: navy
-    accent: blue
+    primary: blue
+    accent: light blue
 
 nav:
   - Home: index.md
-  - MVP: MVP.md
-  - Requisitos: Requisitos.md
-  - Planejamento: Planejamento Semanal.md
-  - Reuniões: Reuniões.md
-  - Stacks: Stacks utilizadas.md
+  - MVP: mvp.md
+  - Requisitos: requisitos.md
+  - Planejamento: planejamento-semanal.md
+  - Reuniões: reunioes.md
+  - Stacks: stacks-utilizadas.md
