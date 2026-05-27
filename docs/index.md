@@ -1,92 +1,155 @@
-# Apresentação do Projeto
+# OnBoarding Digital
 
-## Introdução
+<section class="od-hero">
+  <div>
+    <h1>Onboarding admissional mais seguro, organizado e auditável.</h1>
+    <p>
+      Plataforma web para centralizar o envio, validação e acompanhamento de documentos admissionais,
+      conectando colaboradores e equipes de RH em um fluxo digital simples, rastreável e preparado para nuvem.
+    </p>
+    <div class="od-actions">
+      <a class="od-button primary" href="mvp/">Conhecer o MVP</a>
+      <a class="od-button secondary" href="stacks-utilizadas/">Ver stack técnica</a>
+    </div>
+  </div>
 
-Este sistema foi desenvolvido para o projeto de extensão **AILAB Makers**, da Universidade de Brasília (UnB/FCTE).
+  <div class="od-preview" aria-label="Prévia visual do painel do produto">
+    <div class="od-preview-top">
+      <span class="od-dot"></span>
+      <span class="od-dot"></span>
+      <span class="od-dot"></span>
+    </div>
+    <div class="od-preview-body">
+      <div class="od-metric-row">
+        <div>
+          <strong>Documentos recebidos</strong>
+          <span>Envios realizados por colaboradores</span>
+        </div>
+        <div class="od-status ok">84%</div>
+      </div>
+      <div class="od-doc-row">
+        <div>
+          <strong>RG e CPF</strong>
+          <span>Maria Oliveira • PDF</span>
+        </div>
+        <div class="od-status">Em análise</div>
+      </div>
+      <div class="od-doc-row">
+        <div>
+          <strong>Comprovante de residência</strong>
+          <span>João Santos • Imagem</span>
+        </div>
+        <div class="od-status warn">Reenvio</div>
+      </div>
+      <div class="od-doc-row">
+        <div>
+          <strong>Carteira de trabalho</strong>
+          <span>Ana Costa • PDF</span>
+        </div>
+        <div class="od-status ok">Aprovado</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-O **OnBoarding Digital** é uma plataforma web voltada para departamentos de Recursos Humanos (RH), com o objetivo de digitalizar e automatizar o processo de admissão de novos colaboradores.
+## Visão Geral
 
-A plataforma permite que colaboradores realizem o envio de documentos admissionais de forma segura e centralizada, enquanto a equipe de RH pode acompanhar, validar e gerenciar todas as informações em um único ambiente.
+O **OnBoarding Digital** foi desenvolvido no projeto de extensão **AILAB Makers - UnB FCTE** para modernizar o processo de admissão de colaboradores.
 
-O sistema foi idealizado para substituir processos manuais baseados em e-mails, papéis e compartilhamentos desorganizados, oferecendo uma solução mais segura, auditável e escalável.
+O produto substitui etapas manuais baseadas em e-mails, planilhas e arquivos espalhados por um fluxo digital com autenticação, controle de acesso, upload seguro de documentos e registros de auditoria.
 
-Além disso, o projeto busca aplicar conceitos modernos de desenvolvimento em nuvem, arquitetura web, autenticação segura, armazenamento distribuído e integração contínua.
+<section class="od-section od-grid">
+  <article class="od-card">
+    <h3>Colaborador</h3>
+    <p>Cria conta, acessa a plataforma e envia seus documentos admissionais com acompanhamento do status.</p>
+  </article>
+  <article class="od-card">
+    <h3>Recursos Humanos</h3>
+    <p>Consulta documentos enviados, valida informações, solicita reenvios e acompanha o histórico de ações.</p>
+  </article>
+  <article class="od-card">
+    <h3>Auditoria</h3>
+    <p>Registra operações importantes para aumentar rastreabilidade, segurança e confiança no processo.</p>
+  </article>
+</section>
 
----
+## Principais Entregas
 
-# Funcionalidades Principais
+- Autenticação de usuários com perfis de acesso.
+- Upload de documentos admissionais em PDF ou imagem.
+- Listagem, visualização e download seguro de documentos.
+- Aprovação, rejeição e solicitação de reenvio pelo RH.
+- Registro de logs para ações relevantes.
+- Estrutura preparada para execução com Docker, CI/CD e deploy em cloud.
 
-- Cadastro e autenticação de usuários
-- Controle de acesso baseado em papéis (`employee` e `hr`)
-- Upload de documentos admissionais
-- Visualização segura de documentos
-- Armazenamento de arquivos em nuvem
-- Logs de auditoria das ações realizadas
-- Deploy em ambiente cloud com acesso público
+## Arquitetura em Camadas
 
----
+<section class="od-section od-grid">
+  <article class="od-card">
+    <h3>Frontend</h3>
+    <p>Interface em Next.js, TypeScript e Tailwind para os fluxos de colaborador e RH.</p>
+  </article>
+  <article class="od-card">
+    <h3>Backend</h3>
+    <p>API em FastAPI com regras de negócio, autenticação, controle de documentos e persistência.</p>
+  </article>
+  <article class="od-card">
+    <h3>Infraestrutura</h3>
+    <p>Ambiente containerizado com Docker, banco PostgreSQL, GitHub Actions e Google Cloud Platform.</p>
+  </article>
+</section>
 
-# Arquitetura
+## Stack Resumida
 
-O projeto é estruturado utilizando uma arquitetura modular baseada na separação de responsabilidades entre frontend, backend e infraestrutura.
-
-## Frontend
-Responsável pela interface do usuário, navegação, formulários e comunicação com a API.
-
-## Backend
-Responsável pelas regras de negócio, autenticação, gerenciamento de documentos e auditoria.
-
-## Infraestrutura
-Responsável pelo deploy, containers, armazenamento em nuvem e automação de integração contínua.
-
-A arquitetura adotada prioriza:
-
-- Escalabilidade
-- Segurança
-- Organização do código
-- Facilidade de manutenção
-- Separação clara de responsabilidades
-
----
-
-# Tecnologias Utilizadas
-
-## Frontend
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-
-## Backend
-- FastAPI
-- PostgreSQL
-- SQLAlchemy
-
-## Infraestrutura
-- Docker
-- Google Cloud Platform
-- GitHub Actions
-
----
-
-# Equipe
-
-| Integrante | Responsabilidade |
+| Área | Tecnologias |
 |---|---|
-| Raissa Oliveira | DevOps / Organização / Liderança |
-| Integrante 2 | Frontend |
-| Integrante 3 | Frontend |
-| Integrante 4 | Backend |
-| Integrante 5 | Backend |
-| Integrante 6 | DevOps |
+| Frontend | Next.js, TypeScript, Tailwind CSS |
+| Backend | Python, FastAPI, SQLAlchemy |
+| Banco de dados | PostgreSQL |
+| Infraestrutura | Docker, Docker Compose |
+| Cloud | Google Cloud Platform |
+| CI/CD | GitHub Actions |
+| Documentação | Markdown, GitHub Pages |
 
+## Equipe
 
----
+<section class="od-team">
+  <article class="od-member">
+    <img src="https://github.com/daisha19.png" alt="Raissa Silva de Oliveira">
+    <div><strong>Raissa Silva de Oliveira</strong><span>DevOps / Organização / Liderança</span></div>
+  </article>
+  <article class="od-member">
+    <img src="https://github.com/USUARIO_GITHUB_GUILHERME.png" alt="Guilherme Negreiros Pereira">
+    <div><strong>Guilherme Negreiros Pereira</strong><span>Desenvolvimento</span></div>
+  </article>
+  <article class="od-member">
+    <img src="https://github.com/USUARIO_GITHUB_NINA.png" alt="Nina Rosa Alves Amorim">
+    <div><strong>Nina Rosa Alves Amorim</strong><span>Desenvolvimento</span></div>
+  </article>
+  <article class="od-member">
+    <img src="https://github.com/USUARIO_GITHUB_EDUARDO.png" alt="Eduardo Jesus Dal Pizzol">
+    <div><strong>Eduardo Jesus Dal Pizzol</strong><span>Desenvolvimento</span></div>
+  </article>
+  <article class="od-member">
+    <img src="https://github.com/USUARIO_GITHUB_MATHEUS.png" alt="Matheus Eiki Kimura Rezende">
+    <div><strong>Matheus Eiki Kimura Rezende</strong><span>Desenvolvimento</span></div>
+  </article>
+  <article class="od-member">
+    <img src="https://github.com/USUARIO_GITHUB_THOMAZ.png" alt="Thomaz Marra Martins">
+    <div><strong>Thomaz Marra Martins</strong><span>Desenvolvimento</span></div>
+  </article>
+</section>
 
-# Histórico de Versões
+## Navegação Recomendada
 
-| Versão | Descrição | Autor | Data |
+- [MVP](mvp.md): escopo da primeira entrega e funcionalidades essenciais.
+- [Requisitos](requisitos.md): requisitos funcionais e não funcionais.
+- [Arquitetura](arquitetura.md): organização técnica do sistema.
+- [Stacks Utilizadas](stacks-utilizadas.md): tecnologias e responsabilidades.
+- [Padrões de Desenvolvimento](padroes-desenvolvimento.md): branches, commits e pull requests.
+
+## Histórico de Revisão
+
+| Data | Versão | Autor | Descrição |
 |---|---|---|---|
-| 1.0 | Criação inicial da documentação | [Raissa Silva](https://github.com/daisha19) | 24/05/2026 |
-
----
+| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Criação do histórico de revisão da página. |
