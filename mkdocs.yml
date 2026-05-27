@@ -10,7 +10,6 @@ theme:
 
 nav:
   - Home: index.md
-  - MVP: MVP.md
   - Requisitos: Requisitos.md
   - Planejamento: Planejamento Semanal.md
   - Reuniões: Reuniões.md
