@@ -1150,23 +1150,43 @@
 <tbody>
 <tr>
 <td>RN01</td>
-<td>Um colaborador só pode visualizar documentos vinculados ao próprio usuário.</td>
+<td>Um colaborador só pode visualizar e acompanhar documentos vinculados ao próprio usuário.</td>
 </tr>
 <tr>
 <td>RN02</td>
-<td>Apenas usuários com perfil de RH podem aprovar, rejeitar ou solicitar reenvio de documentos.</td>
+<td>Usuários com perfil RH podem visualizar documentos enviados por todos os colaboradores.</td>
 </tr>
 <tr>
 <td>RN03</td>
-<td>Todo documento enviado deve possuir status inicial pendente.</td>
+<td>Apenas usuários com perfil RH podem validar, aprovar, rejeitar ou solicitar reenvio de documentos.</td>
 </tr>
 <tr>
 <td>RN04</td>
-<td>Documentos rejeitados devem possuir justificativa ou motivo de reenvio.</td>
+<td>Todo documento enviado deve possuir status inicial "Pendente".</td>
 </tr>
 <tr>
 <td>RN05</td>
-<td>Ações sensíveis devem gerar registro de auditoria.</td>
+<td>Documentos rejeitados ou com solicitação de ajuste devem possuir justificativa registrada pelo RH.</td>
+</tr>
+<tr>
+<td>RN06</td>
+<td>Toda ação realizada sobre documentos deve gerar um registro em <code>LOG_AUDITORIA</code>.</td>
+</tr>
+<tr>
+<td>RN07</td>
+<td>Cada registro de <code>LOG_AUDITORIA</code> deve estar associado a um usuário, a um documento e a uma ação de auditoria.</td>
+</tr>
+<tr>
+<td>RN08</td>
+<td>Um documento deve possuir um único status atual, definido por <code>STATUS_DOCUMENTO</code>.</td>
+</tr>
+<tr>
+<td>RN09</td>
+<td>Cada documento enviado deve estar associado a um tipo de documento previamente cadastrado.</td>
+</tr>
+<tr>
+<td>RN10</td>
+<td>Usuários podem possuir um ou mais telefones cadastrados no sistema.</td>
 </tr>
 </tbody>
 </table>
@@ -1207,8 +1227,14 @@
 <tr>
 <td>27/05/2026</td>
 <td>1.0</td>
+<td>Raissa Silva de Oliveira</td>
+<td>Definição dos Requisitos</td>
+</tr>
+<tr>
+<td>27/05/2026</td>
+<td>1.1</td>
 <td>Guilherme Negreiros Pereira</td>
-<td>Criação do histórico de revisão da página.</td>
+<td>Atualizando os requisitos</td>
 </tr>
 </tbody>
 </table>
