@@ -23,12 +23,7 @@ theme:
     primary: navy
     accent: blue
 
-nav:
-  - Home: index.md
-  - Requisitos: Requisitos.md
-  - Planejamento: Planejamento Semanal.md
-  - Reuniões: Reuniões.md
-  - Stacks: Stacks utilizadas.md
+  palette:
     - scheme: slate
       primary: blue
       accent: cyan
@@ -44,6 +39,19 @@ nav:
   font:
     text: Inter
     code: JetBrains Mono
+
+nav:
+  - Início: index.md
+  - Produto:
+      - MVP: mvp.md
+      - Requisitos: requisitos.md
+  - Engenharia:
+      - Arquitetura: arquitetura.md
+      - Stacks Utilizadas: stacks-utilizadas.md
+      - Padrões de Desenvolvimento: padroes-desenvolvimento.md
+  - Gestão:
+      - Planejamento: planejamento.md
+      - Reuniões: reunioes.md
 
 extra_css:
   - stylesheets/extra.css
@@ -63,16 +71,3 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-
-nav:
-  - Início: index.md
-  - Produto:
-      - MVP: mvp.md
-      - Requisitos: requisitos.md
-  - Engenharia:
-      - Arquitetura: arquitetura.md
-      - Stacks Utilizadas: stacks-utilizadas.md
-      - Padrões de Desenvolvimento: padroes-desenvolvimento.md
-  - Gestão:
-      - Planejamento: planejamento.md
-      - Reuniões: reunioes.md

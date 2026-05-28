@@ -94,4 +94,5 @@ A stack foi escolhida priorizando:
 
 | Data | Versão | Autor | Descrição |
 |---|---|---|---|
-| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Criação do histórico de revisão da página. |
+| 24/05/2026 | 1.0 | Raissa Silva de Oliveira | Definção Inicial das stacks utilizadas |
+| 27/05/2026 | 1.1 | Guilherme Negreiros Pereira | Atualizando stacks do frontend |

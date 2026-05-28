@@ -75,4 +75,5 @@ A Google Cloud Platform é a base prevista para recursos de nuvem, enquanto o Gi
 
 | Data | Versão | Autor | Descrição |
 |---|---|---|---|
-| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Criação do histórico de revisão da página. |
+| 24/05/2026 | 1.0 | Raiss Silva de Oliveira | Estrutura Inicial |
+| 27/05/2026 | 1.1 | Guilherme Negreiros Pereira | Atualizando arquitetura escolhida para o projeto |

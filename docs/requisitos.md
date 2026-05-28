@@ -66,4 +66,5 @@ Os requisitos abaixo descrevem as funcionalidades, regras de qualidade e restri�
 
 | Data | Versão | Autor | Descrição |
 |---|---|---|---|
-| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Criação do histórico de revisão da página. |
+| 27/05/2026 | 1.0 | Raissa Silva de Oliveira |Definição dos Requisitos |
+| 27/05/2026 | 1.1 | Guilherme Negreiros Pereira | Atualizando os requisitos |
