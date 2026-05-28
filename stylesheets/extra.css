@@ -1,0 +1,243 @@
+:root {
+  --od-blue: #0f6fff;
+  --od-cyan: #28d4ff;
+  --od-green: #22c55e;
+  --od-ink: #0f172a;
+  --od-muted: #64748b;
+  --od-border: rgba(148, 163, 184, 0.22);
+  --od-surface: rgba(255, 255, 255, 0.92);
+  --od-radius: 18px;
+}
+
+[data-md-color-scheme="slate"] {
+  --od-ink: #f8fafc;
+  --od-muted: #cbd5e1;
+  --od-surface: rgba(15, 23, 42, 0.74);
+  --od-border: rgba(148, 163, 184, 0.22);
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  letter-spacing: 0;
+}
+
+.md-typeset h1 {
+  font-weight: 800;
+}
+
+.od-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 2.2rem;
+  align-items: center;
+  min-height: 70vh;
+  padding: 3rem 0 4rem;
+}
+
+.od-hero h1 {
+  margin: 0;
+  max-width: 760px;
+  font-size: clamp(2.4rem, 6vw, 4.7rem);
+  line-height: 0.98;
+}
+
+.od-hero p {
+  max-width: 680px;
+  margin: 1.2rem 0 0;
+  color: var(--od-muted);
+  font-size: 1.08rem;
+}
+
+.od-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.8rem;
+}
+
+.od-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.od-button.primary {
+  color: #fff !important;
+  background: var(--od-blue);
+  box-shadow: 0 12px 32px rgba(15, 111, 255, 0.28);
+}
+
+.od-button.secondary {
+  color: var(--od-ink) !important;
+  border: 1px solid var(--od-border);
+  background: var(--od-surface);
+}
+
+.od-preview {
+  border: 1px solid var(--od-border);
+  border-radius: 24px;
+  background:
+    linear-gradient(145deg, rgba(15, 111, 255, 0.18), rgba(34, 197, 94, 0.08)),
+    var(--od-surface);
+  box-shadow: 0 26px 80px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
+}
+
+.od-preview-top {
+  display: flex;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--od-border);
+}
+
+.od-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--od-blue);
+}
+
+.od-dot:nth-child(2) {
+  background: var(--od-cyan);
+}
+
+.od-dot:nth-child(3) {
+  background: var(--od-green);
+}
+
+.od-preview-body {
+  padding: 1.2rem;
+}
+
+.od-metric-row,
+.od-doc-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--od-border);
+}
+
+.od-metric-row strong,
+.od-doc-row strong {
+  display: block;
+  color: var(--od-ink);
+  font-size: 0.92rem;
+}
+
+.od-metric-row span,
+.od-doc-row span {
+  color: var(--od-muted);
+  font-size: 0.78rem;
+}
+
+.od-status {
+  min-width: 92px;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  color: #075985;
+  background: #cffafe;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.od-status.ok {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.od-status.warn {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.od-section {
+  margin: 4rem 0;
+}
+
+.od-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.od-card {
+  height: 100%;
+  padding: 1.1rem;
+  border: 1px solid var(--od-border);
+  border-radius: var(--od-radius);
+  background: var(--od-surface);
+}
+
+.od-card h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1rem;
+}
+
+.od-card p {
+  margin: 0;
+  color: var(--od-muted);
+}
+
+.od-team {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.od-member {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--od-border);
+  border-radius: var(--od-radius);
+  background: var(--od-surface);
+}
+
+.od-member img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+}
+
+.od-member strong {
+  display: block;
+  color: var(--od-ink);
+}
+
+.od-member span {
+  color: var(--od-muted);
+  font-size: 0.78rem;
+}
+
+.od-timeline {
+  border-left: 2px solid var(--od-border);
+  padding-left: 1.2rem;
+}
+
+.od-timeline p {
+  margin: 0 0 1rem;
+}
+
+@media (max-width: 900px) {
+  .od-hero,
+  .od-grid,
+  .od-team {
+    grid-template-columns: 1fr;
+  }
+
+  .od-hero {
+    min-height: auto;
+    padding-top: 1.5rem;
+  }
+}

@@ -1,3 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://daisha19.github.io/Onboarding-Digital/</loc>
+         <lastmod>2026-05-28</lastmod>
+    </url>
+    <url>
+         <loc>https://daisha19.github.io/Onboarding-Digital/arquitetura/</loc>
+         <lastmod>2026-05-28</lastmod>
+    </url>
+    <url>
+         <loc>https://daisha19.github.io/Onboarding-Digital/mvp/</loc>
+         <lastmod>2026-05-28</lastmod>
+    </url>
+    <url>
+         <loc>https://daisha19.github.io/Onboarding-Digital/padroes-desenvolvimento/</loc>
+         <lastmod>2026-05-28</lastmod>
+    </url>
+    <url>
+         <loc>https://daisha19.github.io/Onboarding-Digital/planejamento/</loc>
+         <lastmod>2026-05-28</lastmod>
+    </url>
+    <url>
+         <loc>https://daisha19.github.io/Onboarding-Digital/requisitos/</loc>
+         <lastmod>2026-05-28</lastmod>
+    </url>
+    <url>
+         <loc>https://daisha19.github.io/Onboarding-Digital/reunioes/</loc>
+         <lastmod>2026-05-28</lastmod>
+    </url>
+    <url>
+         <loc>https://daisha19.github.io/Onboarding-Digital/stacks-utilizadas/</loc>
+         <lastmod>2026-05-28</lastmod>
+    </url>
 </urlset>
