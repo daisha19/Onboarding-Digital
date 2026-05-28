@@ -55,6 +55,49 @@ docs: update README
 refactor: reorganize backend structure
 ```
 
+---
+
+# Pré-requisitos
+
+Antes de configurar o projeto, é necessário instalar:
+
+## Node.js
+https://nodejs.org/
+
+## Python 3.11
+https://www.python.org/
+
+## Docker Desktop
+https://www.docker.com/products/docker-desktop/
+
+---
+
+# Como executar o projeto com Docker
+
+Após instalar os pré-requisitos, execute o seguinte comando na raiz do projeto:
+
+```bash
+docker compose up --build
+
+# Status do Projeto
+
+🚧 Em desenvolvimento
+
+---
+
+# Integrantes
+
+- Raissa Silva de Oliveira
+- Guilherme Negreiros Pereira
+- Nina Rosa Alves Amorim
+- Eduardo Jesus Dal Pizzol
+- Matheus Eiki Kimura Rezende 
+- Thomaz Marra Martins 
+
+
+---
+
+# Licença
 ## Equipe
 
 <div align="center">
