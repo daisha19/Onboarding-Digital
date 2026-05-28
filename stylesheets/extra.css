@@ -38,7 +38,8 @@
 .od-hero h1 {
   margin: 0;
   max-width: 720px;
-  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-size: clamp(1rem, 2.4vw, 1.6rem);
+  margin-bottom: 0.4rem;
   line-height: 1.02;
   word-break: keep-all;
   overflow-wrap: normal;
