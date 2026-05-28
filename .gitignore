@@ -13,6 +13,8 @@ ENV/
 .ruff_cache/
 .coverage
 htmlcov/
+__pycache__/
+*.pyc
 
 # Node / Next.js
 node_modules/
