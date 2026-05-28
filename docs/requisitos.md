@@ -46,13 +46,18 @@ Os requisitos abaixo descrevem as funcionalidades, regras de qualidade e restri�
 
 ## Regras de Negócio
 
-| ID | Regra |
-|---|---|
-| RN01 | Um colaborador só pode visualizar documentos vinculados ao próprio usuário. |
-| RN02 | Apenas usuários com perfil de RH podem aprovar, rejeitar ou solicitar reenvio de documentos. |
-| RN03 | Todo documento enviado deve possuir status inicial pendente. |
-| RN04 | Documentos rejeitados devem possuir justificativa ou motivo de reenvio. |
-| RN05 | Ações sensíveis devem gerar registro de auditoria. |
+| ID   | Regra                                                                                                         |
+| ---- | ------------------------------------------------------------------------------------------------------------- |
+| RN01 | Um colaborador só pode visualizar e acompanhar documentos vinculados ao próprio usuário.                      |
+| RN02 | Usuários com perfil RH podem visualizar documentos enviados por todos os colaboradores.                       |
+| RN03 | Apenas usuários com perfil RH podem validar, aprovar, rejeitar ou solicitar reenvio de documentos.            |
+| RN04 | Todo documento enviado deve possuir status inicial "Pendente".                                                |
+| RN05 | Documentos rejeitados ou com solicitação de ajuste devem possuir justificativa registrada pelo RH.            |
+| RN06 | Toda ação realizada sobre documentos deve gerar um registro em `LOG_AUDITORIA`.                               |
+| RN07 | Cada registro de `LOG_AUDITORIA` deve estar associado a um usuário, a um documento e a uma ação de auditoria. |
+| RN08 | Um documento deve possuir um único status atual, definido por `STATUS_DOCUMENTO`.                             |
+| RN09 | Cada documento enviado deve estar associado a um tipo de documento previamente cadastrado.                    |
+| RN10 | Usuários podem possuir um ou mais telefones cadastrados no sistema.                                           |
 
 ## Matriz de Prioridade
 
