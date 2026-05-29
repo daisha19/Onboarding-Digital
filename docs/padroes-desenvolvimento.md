@@ -7,7 +7,7 @@ Esta página define os padrões usados pela equipe para manter organização, ra
 | Branch | Uso |
 |---|---|
 | `main` | Versões estáveis e entregas consolidadas. |
-| `develop` | Integração das funcionalidades em desenvolvimento, quando utilizada pela equipe. |
+| `dev` | Integração das funcionalidades em desenvolvimento, quando utilizada pela equipe. |
 | `feature/*` | Novas funcionalidades. |
 | `fix/*` | Correções de bugs. |
 | `docs/*` | Alterações de documentação. |
