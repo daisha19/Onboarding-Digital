@@ -119,23 +119,23 @@ O produto substitui etapas manuais baseadas em e-mails, planilhas e arquivos esp
     <div><strong>Raissa Silva de Oliveira</strong><span>DevOps / Organização / Liderança</span></div>
   </article>
   <article class="od-member">
-    <img src="https://github.com/USUARIO_GITHUB_GUILHERME.png" alt="Guilherme Negreiros Pereira">
+    <img src="https://github.com/guin409.png" alt="Guilherme Negreiros Pereira">
     <div><strong>Guilherme Negreiros Pereira</strong><span>Desenvolvimento</span></div>
   </article>
   <article class="od-member">
-    <img src="https://github.com/USUARIO_GITHUB_NINA.png" alt="Nina Rosa Alves Amorim">
+    <img src="https://github.com/ninaalves14.png" alt="Nina Rosa Alves Amorim">
     <div><strong>Nina Rosa Alves Amorim</strong><span>Desenvolvimento</span></div>
   </article>
   <article class="od-member">
-    <img src="https://github.com/USUARIO_GITHUB_EDUARDO.png" alt="Eduardo Jesus Dal Pizzol">
+    <img src="https://github.com/Edupizzol.png" alt="Eduardo Jesus Dal Pizzol">
     <div><strong>Eduardo Jesus Dal Pizzol</strong><span>Desenvolvimento</span></div>
   </article>
   <article class="od-member">
-    <img src="https://github.com/USUARIO_GITHUB_MATHEUS.png" alt="Matheus Eiki Kimura Rezende">
+    <img src="https://github.com/mateiki.png" alt="Matheus Eiki Kimura Rezende">
     <div><strong>Matheus Eiki Kimura Rezende</strong><span>Desenvolvimento</span></div>
   </article>
   <article class="od-member">
-    <img src="https://github.com/USUARIO_GITHUB_THOMAZ.png" alt="Thomaz Marra Martins">
+    <img src="https://github.com/marrathomaz.png" alt="Thomaz Marra Martins">
     <div><strong>Thomaz Marra Martins</strong><span>Desenvolvimento</span></div>
   </article>
 </section>
@@ -152,4 +152,5 @@ O produto substitui etapas manuais baseadas em e-mails, planilhas e arquivos esp
 
 | Data | Versão | Autor | Descrição |
 |---|---|---|---|
-| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Criação do histórico de revisão da página. |
+| 24/05/2026 | 1.0 | Raiss Silva de Oliveira | Estrutura inicial do git pages. |
+| 27/05/2026 | 1.1 | Guilherme Negreiros Pereira |Atualizando tabela de integrantes. |

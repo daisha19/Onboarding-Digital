@@ -58,4 +58,4 @@ Uma tarefa só deve ser considerada concluída quando:
 
 | Data | Versão | Autor | Descrição |
 |---|---|---|---|
-| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Criação do histórico de revisão da página. |
+| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Definição do planejamento da equipe |

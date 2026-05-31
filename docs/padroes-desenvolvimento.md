@@ -136,4 +136,4 @@ Com isso, cada alteração de documentação enviada para a `main` gera e public
 
 | Data | Versão | Autor | Descrição |
 |---|---|---|---|
-| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Criação do histórico de revisão da página. |
+| 27/05/2026 | 1.0 | Guilherme Negreiros Pereira | Definindo os padrões de desenvolvimento |
