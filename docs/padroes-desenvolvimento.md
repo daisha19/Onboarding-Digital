@@ -8,7 +8,7 @@ Esta página define os padrões usados pela equipe para manter organização, ra
 |---|---|
 | `main` | Versões estáveis e entregas consolidadas. |
 | `dev` | Integração das funcionalidades em desenvolvimento, quando utilizada pela equipe. |
-| `feature/*` | Novas funcionalidades. |
+| `feat/*` | Novas funcionalidades. |
 | `fix/*` | Correções de bugs. |
 | `docs/*` | Alterações de documentação. |
 | `refactor/*` | Refatorações sem mudança de comportamento esperado. |
@@ -16,7 +16,7 @@ Esta página define os padrões usados pela equipe para manter organização, ra
 Exemplos:
 
 ```bash
-git checkout -b feature/upload-documentos
+git checkout -b feat/upload-documentos
 git checkout -b fix/validacao-jwt
 git checkout -b docs/atualiza-readme
 ```
