@@ -13,6 +13,7 @@ O backend centraliza a lógica do sistema e expõe endpoints para o frontend. El
 | Python | Linguagem principal da API |
 | FastAPI | Framework para criação dos endpoints |
 | SQLAlchemy | ORM para comunicação com o banco |
+| Alembic | Migrações e versionamento do schema |
 | PostgreSQL | Banco de dados relacional |
 | Docker | Padronização do ambiente de execução |
 
@@ -74,6 +75,27 @@ A API ficará disponível em:
 - `http://localhost:8000/docs`
 - `http://localhost:8000/redoc`
 - `http://localhost:8000/health`
+
+## Autenticação Inicial
+
+Como o cadastro de usuários deve ser feito pelo RH, o primeiro usuário RH precisa ser criado por script no ambiente local:
+
+```bash
+docker compose exec backend python -m app.scripts.create_initial_rh \
+  --email rh@example.com \
+  --senha change-me \
+  --matricula 1001 \
+  --cargo "Analista de RH"
+```
+
+Depois disso, o RH pode autenticar e criar colaboradores ou outros usuários de RH pelas rotas protegidas.
+
+Rotas iniciais:
+
+- `POST /auth/login`
+- `GET /auth/me`
+- `POST /usuarios/colaboradores`
+- `POST /usuarios/rh`
 
 Também é possível executar a API diretamente na máquina para desenvolvimento local:
 
