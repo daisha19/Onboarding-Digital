@@ -13,6 +13,7 @@ O backend centraliza a lógica do sistema e expõe endpoints para o frontend. El
 | Python | Linguagem principal da API |
 | FastAPI | Framework para criação dos endpoints |
 | SQLAlchemy | ORM para comunicação com o banco |
+| Alembic | Migrações e versionamento do schema |
 | PostgreSQL | Banco de dados relacional |
 | Docker | Padronização do ambiente de execução |
 
@@ -49,8 +50,8 @@ Essa estrutura pode ser ajustada conforme a implementação evoluir.
 As variáveis devem ser documentadas no `.env.example` da raiz do projeto. Valores esperados para o backend incluem:
 
 ```env
-DATABASE_URL=postgresql://usuario:senha@localhost:5432/onboarding
-SECRET_KEY=chave-secreta-para-jwt
+DATABASE_URL=postgresql://usuario:senha@db:5432/onboarding_db
+SECRET_KEY=change-me
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 UPLOAD_MAX_SIZE_MB=10
 ```
@@ -59,7 +60,44 @@ Nunca versionar arquivos `.env` com credenciais reais.
 
 ## Como Executar Localmente
 
-Quando a API estiver implementada, o fluxo esperado será:
+O fluxo recomendado para desenvolvimento é subir a API junto com o PostgreSQL pelo Docker Compose, a partir da raiz do projeto:
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+Antes de subir os containers, edite o `.env` e troque os valores marcados como `change-me`.
+
+A API ficará disponível em:
+
+- `http://localhost:8000`
+- `http://localhost:8000/docs`
+- `http://localhost:8000/redoc`
+- `http://localhost:8000/health`
+
+## Autenticação Inicial
+
+Como o cadastro de usuários deve ser feito pelo RH, o primeiro usuário RH precisa ser criado por script no ambiente local:
+
+```bash
+docker compose exec backend python -m app.scripts.create_initial_rh \
+  --email rh@example.com \
+  --senha change-me \
+  --matricula 1001 \
+  --cargo "Analista de RH"
+```
+
+Depois disso, o RH pode autenticar e criar colaboradores ou outros usuários de RH pelas rotas protegidas.
+
+Rotas iniciais:
+
+- `POST /auth/login`
+- `GET /auth/me`
+- `POST /usuarios/colaboradores`
+- `POST /usuarios/rh`
+
+Também é possível executar a API diretamente na máquina para desenvolvimento local:
 
 ```bash
 cd backend
@@ -69,7 +107,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-A documentação automática do FastAPI ficará disponível em:
+Ao executar diretamente na máquina, ajuste o `DATABASE_URL` conforme o host do banco utilizado. A documentação automática do FastAPI ficará disponível em:
 
 - `http://localhost:8000/docs`
 - `http://localhost:8000/redoc`

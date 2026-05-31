@@ -71,3 +71,17 @@ markdown_extensions:
       anchor_linenums: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
+
+nav:
+  - Início: index.md
+  - Produto:
+      - MVP: mvp.md
+      - Requisitos: requisitos.md
+  - Engenharia:
+      - Arquitetura: arquitetura.md
+      - Stacks Utilizadas: stacks-utilizadas.md
+      - Padrões de Desenvolvimento: padroes-desenvolvimento.md
+      - Operação do Backend: devops.md
+  - Gestão:
+      - Planejamento: planejamento.md
+      - Reuniões: reunioes.md

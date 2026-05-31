@@ -7,7 +7,7 @@ Esta página registra a stack principal do projeto e o papel de cada tecnologia 
 | Camada | Tecnologias |
 |---|---|
 | Frontend | Next.js, TypeScript, Tailwind CSS |
-| Backend | Python, FastAPI, SQLAlchemy |
+| Backend | Python, FastAPI, SQLAlchemy, Alembic |
 | Banco de dados | PostgreSQL |
 | Infraestrutura | Docker, Docker Compose |
 | Cloud | Google Cloud Platform |
@@ -37,6 +37,7 @@ Esta página registra a stack principal do projeto e o papel de cada tecnologia 
 | Python | Linguagem principal da API e das regras de negócio. |
 | FastAPI | Framework web para construção de endpoints, documentação automática e validação de dados. |
 | SQLAlchemy | Camada de ORM para modelagem e comunicação com o banco de dados. |
+| Alembic | Controle de migrações para versionar alterações no schema do banco. |
 
 ### Responsabilidades do Backend
 
