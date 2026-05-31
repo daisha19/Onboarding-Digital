@@ -73,6 +73,7 @@ nav:
       - Arquitetura: arquitetura.md
       - Stacks Utilizadas: stacks-utilizadas.md
       - Padrões de Desenvolvimento: padroes-desenvolvimento.md
+      - Operação do Backend: devops.md
   - Gestão:
       - Planejamento: planejamento.md
       - Reuniões: reunioes.md

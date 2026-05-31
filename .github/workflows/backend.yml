@@ -1,0 +1,66 @@
+name: Backend
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: onboarding_db
+          POSTGRES_USER: onboarding_user
+          POSTGRES_PASSWORD: onboarding_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U onboarding_user -d onboarding_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://onboarding_user:onboarding_password@localhost:5432/onboarding_db
+      SECRET_KEY: ci-secret-key-change-me
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+      UPLOAD_MAX_SIZE_MB: 10
+      BACKEND_CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compile application
+        run: python -m compileall app
+
+      - name: Apply migrations
+        run: alembic upgrade head
+
+      - name: Run tests
+        run: pytest
