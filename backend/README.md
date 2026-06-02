@@ -50,13 +50,67 @@ Essa estrutura pode ser ajustada conforme a implementação evoluir.
 As variáveis devem ser documentadas no `.env.example` da raiz do projeto. Valores esperados para o backend incluem:
 
 ```env
-DATABASE_URL=postgresql://usuario:senha@db:5432/onboarding_db
+DATABASE_URL=postgresql+psycopg2://usuario:senha@db:5432/onboarding_db
 SECRET_KEY=change-me
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 UPLOAD_MAX_SIZE_MB=10
 ```
 
 Nunca versionar arquivos `.env` com credenciais reais.
+
+## Banco PostgreSQL no Supabase
+
+O backend usa o Supabase apenas como PostgreSQL remoto. A aplicação continua usando SQLAlchemy, e as migrações continuam sendo executadas pelo Alembic. Não é necessário usar `supabase-js`, Supabase Auth, service role key ou anon key para este fluxo.
+
+A `DATABASE_URL` é carregada em `app/core/config.py` a partir do arquivo `.env` da raiz do projeto. A mesma variável é usada pela aplicação em `app/db/session.py` e pelo Alembic em `alembic/env.py`.
+
+Para usar o PostgreSQL do Supabase, copie o exemplo e edite o `.env`:
+
+```bash
+cp ../.env.example ../.env
+```
+
+No `.env`, defina a `DATABASE_URL` em uma única linha, usando a connection string PostgreSQL do Supabase e mantendo SSL explícito:
+
+```env
+DATABASE_URL=postgresql+psycopg2://USUARIO:SENHA@HOST:PORT/postgres?sslmode=require
+```
+
+Se a senha tiver caracteres especiais, use a versão URL-encoded da senha.
+
+Para testar a conexão sem alterar o banco:
+
+```bash
+cd backend
+python -c "from app.db.session import engine; print(engine.connect().exec_driver_sql('select 1').scalar())"
+```
+
+O resultado esperado é:
+
+```text
+1
+```
+
+Para aplicar as migrações no banco do Supabase:
+
+```bash
+cd backend
+alembic upgrade head
+```
+
+Antes de rodar esse comando, confira se o `.env` aponta para o projeto correto do Supabase, pois o Alembic vai alterar o schema desse banco.
+
+Para voltar ao banco local pelo Docker Compose, altere a `DATABASE_URL` no `.env` para o serviço `db`, sem `sslmode=require`:
+
+```env
+DATABASE_URL=postgresql+psycopg2://onboarding_user:SENHA_LOCAL@db:5432/onboarding_db
+```
+
+Para usar o PostgreSQL local a partir de comandos executados fora do Docker, use `localhost`:
+
+```env
+DATABASE_URL=postgresql+psycopg2://onboarding_user:SENHA_LOCAL@localhost:5432/onboarding_db
+```
 
 ## Como Executar Localmente
 
