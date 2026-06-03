@@ -1,19 +1,30 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(
-    title="Onboarding Digital API",
-    description="API inicial do sistema de onboarding digital",
-    version="1.0.0"
-)
+from app.api.routes import auth, health, usuarios
+from app.core.config import settings
 
-@app.get("/")
-def read_root():
-    return {
-        "message": "Backend do Onboarding Digital funcionando"
-    }
 
-@app.get("/health")
-def health_check():
-    return {
-        "status": "ok"
-    }
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title=settings.PROJECT_NAME,
+        description=settings.PROJECT_DESCRIPTION,
+        version=settings.API_VERSION,
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    app.include_router(auth.router)
+    app.include_router(health.router)
+    app.include_router(usuarios.router)
+
+    return app
+
+
+app = create_app()

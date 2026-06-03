@@ -3,3 +3,12 @@ uvicorn[standard]
 sqlalchemy
 psycopg2-binary
 python-dotenv
+pydantic-settings
+alembic
+passlib[bcrypt]
+bcrypt==4.0.1
+python-jose[cryptography]
+python-multipart
+email-validator
+pytest
+httpx

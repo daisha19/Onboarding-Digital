@@ -4,14 +4,20 @@ services:
     container_name: onboarding_db
     restart: always
     environment:
-      POSTGRES_DB: onboarding_db
-      POSTGRES_USER: onboarding_user
-      POSTGRES_PASSWORD: onboarding_pass
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # API em modo desenvolvimento. Para producao, remover --reload do Dockerfile.
   backend:
     build: ./backend
     container_name: onboarding_backend
@@ -23,7 +29,23 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      DATABASE_URL: postgresql://onboarding_user:onboarding_pass@db:5432/onboarding_db
+      # Valores carregados do .env local.
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      UPLOAD_MAX_SIZE_MB: ${UPLOAD_MAX_SIZE_MB}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

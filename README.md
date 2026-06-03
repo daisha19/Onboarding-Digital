@@ -17,7 +17,6 @@ A aplicação permite que colaboradores enviem documentos admissionais com segur
 A documentação detalhada do projeto será mantida no GitHub Pages:
 
 - **Docs:** [OnBoarding Digital Docs](https://daisha19.github.io/Onboarding-Digital/)
-- **Documentação no repositório:** [`docs/`](docs/)
 
 > Este README tem como objetivo apresentar o projeto de forma sucinta. Detalhes de requisitos, planejamento, arquitetura, reuniões e evolução do produto ficam concentrados na documentação.
 
@@ -72,12 +71,43 @@ https://www.docker.com/products/docker-desktop/
 
 ---
 
-# Como executar o projeto com Docker
+## Como executar o projeto com Docker
 
-Após instalar os pré-requisitos, execute o seguinte comando na raiz do projeto:
+Na raiz do projeto, crie o arquivo `.env` a partir do exemplo:
 
 ```bash
-docker compose up --build
+cp .env.example .env
+```
+
+Depois, edite o `.env` e troque os valores marcados como `change-me`, principalmente:
+
+- `POSTGRES_PASSWORD`
+- a senha dentro de `DATABASE_URL`
+- `SECRET_KEY`
+
+Com o `.env` configurado, suba o banco e a API:
+
+```bash
+docker compose up -d --build
+```
+
+Verifique os containers:
+
+```bash
+docker compose ps
+```
+
+A API ficará disponível em:
+
+- `http://localhost:8000`
+- `http://localhost:8000/docs`
+- `http://localhost:8000/health`
+
+Para parar os serviços:
+
+```bash
+docker compose down
+```
 
 # Status do Projeto
 
