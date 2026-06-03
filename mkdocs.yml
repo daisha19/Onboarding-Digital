@@ -7,8 +7,8 @@ repo_name: daisha19/Onboarding-Digital
 theme:
   name: material
   language: pt-BR
-  logo: assets/logo-macro.png
-  favicon: assets/logo-micro.png
+  logo: assets/logo-mini.png
+  favicon: assets/icone-aba.png
   features:
     - navigation.tabs
     - navigation.sections
