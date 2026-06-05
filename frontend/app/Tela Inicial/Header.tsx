@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Header() {
   return (
@@ -14,7 +15,7 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-4">
-        <a className="text-sm text-zinc-700" href="#">Entrar</a>
+        <Link href="/login" className="text-sm text-zinc-700">Entrar</Link>
         <a
           className="text-sm bg-blue-500 text-white px-4 py-2 rounded-full shadow-sm"
           href="#"
