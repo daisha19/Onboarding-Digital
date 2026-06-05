@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -14,7 +15,7 @@ export default function Hero() {
 
         <div className="flex items-center gap-4 mt-6">
           <a className="bg-blue-600 text-white px-6 py-3 rounded-md shadow" href="#">Começar Agora</a>
-          <a className="border border-zinc-200 px-5 py-3 rounded-md" href="#">Já tenho conta</a>
+          <Link href="/login" className="border border-zinc-200 px-5 py-3 rounded-md">Já tenho conta</Link>
         </div>
       </div>
 
