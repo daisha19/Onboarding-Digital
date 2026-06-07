@@ -36,7 +36,7 @@ export default function LoginPage() {
       } else {
         alert(`Bem-vindo, ${user.name ?? user.email} (demo)`);
       }
-    } catch (err) {
+    } catch {
       setAuthError('Erro ao validar credenciais. Tente novamente.');
     } finally {
       setLoading(false);

@@ -1,14 +1,25 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
 
   const validate = () => {
     const e: { email?: string; password?: string } = {};
@@ -26,18 +37,25 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('/users.json');
-      const users: { email: string; password: string; name?: string }[] = await res.json();
-      const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-      if (!user) {
-        setAuthError('Email ou senha incorretos.');
-      } else if (user.password !== password) {
-        setAuthError('Email ou senha incorretos.');
-      } else {
-        alert(`Bem-vindo, ${user.name ?? user.email} (demo)`);
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, senha: password }),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { detail?: string } | null;
+        setAuthError(data?.detail ?? "Email ou senha incorretos.");
+        return;
       }
-    } catch (err) {
-      setAuthError('Erro ao validar credenciais. Tente novamente.');
+
+      const data = (await response.json()) as { accessToken: string };
+      localStorage.setItem("accessToken", data.accessToken);
+      router.push("/dashboard");
+    } catch {
+      setAuthError("Erro ao validar credenciais. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -131,7 +149,7 @@ export default function LoginPage() {
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between text-sm text-zinc-500 gap-3">
           <Link href="#" className="text-blue-600">Esqueci minha senha</Link>
-          <Link href="#" className="text-zinc-600">Criar conta</Link>
+          <Link href="/cadastro" className="text-zinc-600">Criar conta</Link>
         </div>
       </div>
     </div>
