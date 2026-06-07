@@ -5,13 +5,17 @@ from sqlalchemy.orm import Session
 from app.core.errors import (
     invalid_token_error,
     insufficient_permission_error,
+    missing_token_error,
 )
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.models import Usuario
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/auth/login",
+    auto_error=False,
+)
 
 
 def get_user_role(usuario: Usuario) -> str:
@@ -23,9 +27,12 @@ def get_user_role(usuario: Usuario) -> str:
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    token: str | None = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> Usuario:
+    if token is None:
+        raise missing_token_error()
+
     credentials_exception = invalid_token_error()
 
     try:
