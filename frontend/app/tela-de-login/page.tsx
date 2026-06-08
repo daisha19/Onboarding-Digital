@@ -19,6 +19,8 @@ export default function LoginPage() {
     return Object.keys(e).length === 0;
   };
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setAuthError("");
@@ -26,18 +28,26 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('/users.json');
-      const users: { email: string; password: string; name?: string }[] = await res.json();
-      const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-      if (!user) {
-        setAuthError('Email ou senha incorretos.');
-      } else if (user.password !== password) {
-        setAuthError('Email ou senha incorretos.');
-      } else {
-        alert(`Bem-vindo, ${user.name ?? user.email} (demo)`);
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha: password }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          setAuthError("E-mail ou senha inválidos.");
+        } else {
+          setAuthError("Erro no servidor. Tente novamente mais tarde.");
+        }
+        return;
       }
+
+      const data = await res.json();
+      localStorage.setItem("accessToken", data.accessToken);
+      window.location.href = "/";
     } catch (err) {
-      setAuthError('Erro ao validar credenciais. Tente novamente.');
+      setAuthError("Erro de conexão com o servidor. Verifique se o backend está rodando.");
     } finally {
       setLoading(false);
     }
