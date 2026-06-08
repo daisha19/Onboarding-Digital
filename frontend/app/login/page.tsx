@@ -16,10 +16,33 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem("accessToken")) {
-      router.replace("/dashboard");
-    }
-  }, [router]);
+    const checkAuth = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return;
+
+      try {
+        // Faz uma checagem rápida no backend para ver se o token antigo ainda é válido
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          // Token está lindo? Vai pro dashboard
+          router.replace("/dashboard");
+        } else {
+          // Token mofou ou o banco resetou? Limpa o lixo para não dar loop
+          localStorage.removeItem("accessToken");
+        }
+      } catch {
+        // Se a API estiver fora ou der erro de rede, remove por segurança
+        localStorage.removeItem("accessToken");
+      }
+    };
+
+    checkAuth();
+  }, [router]); // Incluir o router aqui é seguro pois a lógica interna está protegida por condições
 
   const validate = () => {
     const e: { email?: string; password?: string } = {};

@@ -54,64 +54,8 @@ type CollaboratorForm = {
   dataNascimento: string;
 };
 
-const initialCollaborators: CollaboratorRow[] = [
-  {
-    id: 1,
-    name: "João Santos",
-    email: "joao.santos@empresa.com",
-    role: "Desenvolvedor Sênior",
-    department: "Tecnologia",
-    progress: 6,
-    steps: 8,
-    status: "Em Análise",
-    initials: "JS",
-    phone: "(11) 98888-1122",
-    lastUpdate: "há 15 minutos",
-    documents: ["Documento de identidade", "Comprovante bancário", "Termo de confidencialidade"],
-  },
-  {
-    id: 2,
-    name: "Ana Costa",
-    email: "ana.costa@empresa.com",
-    role: "Analista de Marketing",
-    department: "Marketing",
-    progress: 3,
-    steps: 8,
-    status: "Pendente",
-    initials: "AC",
-    phone: "(11) 97777-2233",
-    lastUpdate: "ontem",
-    documents: ["Documento de identidade", "Foto 3x4"],
-  },
-  {
-    id: 3,
-    name: "Carlos Silva",
-    email: "carlos.silva@empresa.com",
-    role: "Gerente de Vendas",
-    department: "Comercial",
-    progress: 8,
-    steps: 8,
-    status: "Aprovado",
-    initials: "CS",
-    phone: "(11) 96666-3344",
-    lastUpdate: "há 2 horas",
-    documents: ["Contrato", "Exame admissional", "Dados bancários"],
-  },
-  {
-    id: 4,
-    name: "Mariana Oliveira",
-    email: "mariana.oliveira@empresa.com",
-    role: "Designer UX",
-    department: "Produto",
-    progress: 2,
-    steps: 8,
-    status: "Pendente",
-    initials: "MO",
-    phone: "(11) 95555-4455",
-    lastUpdate: "há 1 dia",
-    documents: ["Documento de identidade"],
-  },
-];
+// Collaborators are loaded from the backend (GET /usuarios/rh)
+const initialCollaborators: CollaboratorRow[] = [];
 
 const initialDocuments: DocumentRow[] = [
   {
@@ -261,7 +205,47 @@ export default function DashboardPage() {
 
         const data = (await response.json()) as UserProfile;
         setProfile(data);
-        setSelectedCollaboratorId(initialCollaborators[0]?.id ?? null);
+
+        // Após carregar o perfil, buscar os usuários RH do backend e popular a tabela
+        try {
+          const respRH = await fetch(`${API_BASE_URL}/usuarios/rh`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (respRH.ok) {
+            const rhs = (await respRH.json()) as Array<{
+              matricula: number;
+              cargo: string;
+              idUsuario: number;
+              email: string;
+            }>;
+
+            const mapped = rhs.map((r) => ({
+              id: r.idUsuario,
+              name: getDisplayNameFromEmail(r.email),
+              email: r.email,
+              role: r.cargo ?? "RH",
+              department: "RH",
+              progress: 0,
+              steps: 8,
+              status: "Pendente" as CollaboratorStatus,
+              initials: getInitialsFromText(getDisplayNameFromEmail(r.email)),
+              phone: "Não informado",
+              lastUpdate: "agora",
+              documents: [] as string[],
+            } as CollaboratorRow));
+
+            setCollaborators(mapped);
+            setSelectedCollaboratorId(mapped[0]?.id ?? null);
+          } else {
+            setCollaborators([]);
+            setSelectedCollaboratorId(null);
+          }
+        } catch {
+          setError("Não foi possível carregar os usuários RH.");
+        }
       } catch {
         setError("Não foi possível carregar o usuário autenticado.");
       } finally {
@@ -270,7 +254,7 @@ export default function DashboardPage() {
     };
 
     void loadProfile();
-  }, [router]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -343,24 +327,9 @@ export default function DashboardPage() {
       };
 
       const displayName = getDisplayNameFromEmail(data.email);
-      const createdCollaborator: CollaboratorRow = {
-        id: data.idUsuario,
-        name: displayName,
-        email: data.email,
-        role: "Novo colaborador",
-        department: "A definir",
-        progress: 1,
-        steps: 8,
-        status: "Pendente",
-        initials: getInitialsFromText(displayName),
-        phone: "Não informado",
-        lastUpdate: "agora",
-        documents: ["Cadastro inicial"],
-      };
-
-      setCollaborators((current) => [createdCollaborator, ...current]);
-      setSelectedCollaboratorId(createdCollaborator.id);
-      setIsDetailsOpen(true);
+      // O backend criou o colaborador no banco, porém a tabela exibida aqui
+      // mostra apenas usuários com RH no banco — portanto não inserimos
+      // o colaborador recém-criado na lista atual.
       setIsCreateOpen(false);
       resetCreateForm();
       setCreateSuccess("Colaborador cadastrado com sucesso.");
