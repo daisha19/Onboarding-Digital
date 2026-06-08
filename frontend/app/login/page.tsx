@@ -1,14 +1,56 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+
+type UserProfile = {
+  perfil: string; 
+};
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [authError, setAuthError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const redirectByProfile = (perfil: string) => {
+    if (perfil?.toUpperCase() === "RH") {
+      router.replace("/RH_dashboard");
+    } else {
+      router.replace("/colaborador_dashboard");
+    }
+  };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = (await response.json()) as UserProfile;
+          redirectByProfile(data.perfil);
+        } else {
+          localStorage.removeItem("accessToken");
+        }
+      } catch {
+        localStorage.removeItem("accessToken");
+      }
+    };
+
+    void checkAuth();
+  }, [router]);
 
   const validate = () => {
     const e: { email?: string; password?: string } = {};
@@ -26,18 +68,38 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await fetch('/users.json');
-      const users: { email: string; password: string; name?: string }[] = await res.json();
-      const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-      if (!user) {
-        setAuthError('Email ou senha incorretos.');
-      } else if (user.password !== password) {
-        setAuthError('Email ou senha incorretos.');
-      } else {
-        alert(`Bem-vindo, ${user.name ?? user.email} (demo)`);
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, senha: password }),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as { detail?: string } | null;
+        setAuthError(data?.detail ?? "Email ou senha incorretos.");
+        return;
       }
-    } catch (err) {
-      setAuthError('Erro ao validar credenciais. Tente novamente.');
+
+      const data = (await response.json()) as { accessToken: string };
+      localStorage.setItem("accessToken", data.accessToken);
+
+      const profileResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${data.accessToken}`,
+        },
+      });
+
+      if (profileResponse.ok) {
+        const profileData = (await profileResponse.json()) as UserProfile;
+        redirectByProfile(profileData.perfil);
+      } else {
+        setAuthError("Erro ao identificar perfil do usuário. Entre em contato com o suporte.");
+      }
+
+    } catch {
+      setAuthError("Erro ao validar credenciais. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -131,7 +193,7 @@ export default function LoginPage() {
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between text-sm text-zinc-500 gap-3">
           <Link href="#" className="text-blue-600">Esqueci minha senha</Link>
-          <Link href="#" className="text-zinc-600">Criar conta</Link>
+          <Link href="/cadastro" className="text-zinc-600">Criar conta</Link>
         </div>
       </div>
     </div>

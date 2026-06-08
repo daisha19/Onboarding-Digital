@@ -11,7 +11,7 @@ from app.schemas.user import (
     RHCreate,
     RHResponse,
 )
-from app.services.user_service import create_colaborador, create_rh
+from app.services.user_service import create_colaborador, create_rh, get_all_rh
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
@@ -64,3 +64,12 @@ def create_rh_user(
         idUsuario=rh.idUsuario,
         email=rh.usuario.email,
     )
+
+
+@router.get("/rh", response_model=list[RHResponse])
+def list_rh_users(db: Session = Depends(get_db), _: Usuario = Depends(require_rh)):
+    rhs = get_all_rh(db)
+    return [
+        RHResponse(matricula=r.matricula, cargo=r.cargo, idUsuario=r.idUsuario, email=r.usuario.email)
+        for r in rhs
+    ]
