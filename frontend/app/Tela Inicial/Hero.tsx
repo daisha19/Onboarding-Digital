@@ -14,7 +14,7 @@ export default function Hero() {
 
         <div className="flex items-center gap-4 mt-6">
           <Link href="/cadastro" className="bg-blue-600 text-white px-6 py-3 rounded-md shadow">Começar Agora</Link>
-          <Link href="/login" className="border border-zinc-200 px-5 py-3 rounded-md">Já tenho conta</Link>
+          <Link href="/tela-de-login" className="border border-zinc-200 px-5 py-3 rounded-md">Já tenho conta</Link>
         </div>
       </div>
 
