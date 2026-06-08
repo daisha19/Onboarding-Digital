@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+
+type UserProfile = {
+  perfil: string; 
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,13 +18,20 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const redirectByProfile = (perfil: string) => {
+    if (perfil?.toUpperCase() === "RH") {
+      router.replace("/RH_dashboard");
+    } else {
+      router.replace("/colaborador_dashboard");
+    }
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("accessToken");
       if (!token) return;
 
       try {
-        // Faz uma checagem rápida no backend para ver se o token antigo ainda é válido
         const response = await fetch(`${API_BASE_URL}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -29,20 +39,18 @@ export default function LoginPage() {
         });
 
         if (response.ok) {
-          // Token está lindo? Vai pro dashboard
-          router.replace("/dashboard");
+          const data = (await response.json()) as UserProfile;
+          redirectByProfile(data.perfil);
         } else {
-          // Token mofou ou o banco resetou? Limpa o lixo para não dar loop
           localStorage.removeItem("accessToken");
         }
       } catch {
-        // Se a API estiver fora ou der erro de rede, remove por segurança
         localStorage.removeItem("accessToken");
       }
     };
 
-    checkAuth();
-  }, [router]); // Incluir o router aqui é seguro pois a lógica interna está protegida por condições
+    void checkAuth();
+  }, [router]);
 
   const validate = () => {
     const e: { email?: string; password?: string } = {};
@@ -76,7 +84,20 @@ export default function LoginPage() {
 
       const data = (await response.json()) as { accessToken: string };
       localStorage.setItem("accessToken", data.accessToken);
-      router.push("/dashboard");
+
+      const profileResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${data.accessToken}`,
+        },
+      });
+
+      if (profileResponse.ok) {
+        const profileData = (await profileResponse.json()) as UserProfile;
+        redirectByProfile(profileData.perfil);
+      } else {
+        setAuthError("Erro ao identificar perfil do usuário. Entre em contato com o suporte.");
+      }
+
     } catch {
       setAuthError("Erro ao validar credenciais. Tente novamente.");
     } finally {
