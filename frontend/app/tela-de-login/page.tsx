@@ -28,14 +28,15 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      // 1. Faz o Login para obter o Token
+      const loginRes = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, senha: password }),
       });
 
-      if (!res.ok) {
-        if (res.status === 401) {
+      if (!loginRes.ok) {
+        if (loginRes.status === 401) {
           setAuthError("E-mail ou senha inválidos.");
         } else {
           setAuthError("Erro no servidor. Tente novamente mais tarde.");
@@ -43,9 +44,39 @@ export default function LoginPage() {
         return;
       }
 
-      const data = await res.json();
-      localStorage.setItem("accessToken", data.accessToken);
-      window.location.href = "/";
+      const loginData = await loginRes.json();
+      const token = loginData.accessToken;
+      
+      // Salva o token no localStorage
+      localStorage.setItem("accessToken", token);
+
+      // 2. Bate no endpoint /auth/me usando o token obtido para saber QUEM é o usuário
+      const meRes = await fetch(`${API_URL}/auth/me`, {
+        method: "GET",
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json" 
+        },
+      });
+
+      if (!meRes.ok) {
+        setAuthError("Erro ao carregar perfil do usuário.");
+        return;
+      }
+
+      const userData = await meRes.json();
+      
+      // 3. Redirecionamento Dinâmico baseado no retorno de 'perfil'
+      // Normaliza para minúsculo para aceitar "RH", "rh", "Colaborador", etc. sem quebrar
+      const perfilUsuario = userData.perfil?.toLowerCase();
+
+      // 3. Redirecionamento baseado nos nomes REAIS das suas pastas:
+      if (perfilUsuario === "rh") {
+        window.location.href = "/RH_dashboard";
+      } else {
+        window.location.href = "/colaborador_dashboard";
+      }
+
     } catch (err) {
       setAuthError("Erro de conexão com o servidor. Verifique se o backend está rodando.");
     } finally {
