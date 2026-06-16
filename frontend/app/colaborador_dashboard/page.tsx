@@ -225,7 +225,7 @@ export default function ColaboradorDashboard() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Card 1: Enviar Documentos */}
-              <Link href="#" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+              <Link href="/colaborador_dashboard/enviar-documentos" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
