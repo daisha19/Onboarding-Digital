@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_user
 from app.db.session import get_db
+from app.models import Usuario
 from app.schemas.document import DocumentoResponse
 from app.services.document_service import get_all_documents
 
@@ -12,5 +14,8 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[DocumentoResponse])
-def list_documents(db: Session = Depends(get_db)):
+def list_documents(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
     return get_all_documents(db)
