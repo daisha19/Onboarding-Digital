@@ -21,7 +21,7 @@ if response.status_code == 200:
         "dataNascimento": "2000-01-01"
     }
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.post(s
+    response = requests.post(
         f"{base_url}/usuarios/colaboradores",
         json=colaborador_data,
         headers=headers
