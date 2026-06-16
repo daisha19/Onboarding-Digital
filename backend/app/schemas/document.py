@@ -1,9 +1,11 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class DocumentoResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     idDoc: int
     caminhoArquivo: str
     dataEnvio: datetime
@@ -12,6 +14,3 @@ class DocumentoResponse(BaseModel):
     idUsuario: int
     nomeDoc: str
     nomeStatus: str
-
-    class Config:
-        from_attributes = True
