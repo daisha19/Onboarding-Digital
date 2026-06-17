@@ -1,9 +1,11 @@
+import os
+import shutil
+
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
-from app.db.session import get_db
-from app.models import Usuario
+from app.api.deps import get_current_user, get_db
+from app.models.user import Usuario
 from app.schemas.document import DocumentoResponse
 from app.services.document_service import (
     create_document,
@@ -53,9 +55,16 @@ async def upload_document(
             detail="Apenas colaboradores podem enviar documentos.",
         )
 
+    os.makedirs("uploads", exist_ok=True)
+
+    caminho_arquivo = f"uploads/{arquivo.filename}"
+
+    with open(caminho_arquivo, "wb") as buffer:
+        shutil.copyfileobj(arquivo.file, buffer)
+
     documento = create_document(
         db=db,
-        caminho_arquivo=f"uploads/{arquivo.filename}",
+        caminho_arquivo=caminho_arquivo,
         nome_arquivo=arquivo.filename,
         cpf=current_user.colaborador.cpf,
         id_usuario=current_user.idUsuario,
@@ -63,4 +72,4 @@ async def upload_document(
         nome_status="PENDENTE",
     )
 
-    return documento 
+    return documento
