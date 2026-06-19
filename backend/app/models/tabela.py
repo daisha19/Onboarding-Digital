@@ -5,7 +5,7 @@ from sqlalchemy import (
     ForeignKey,
     DateTime
 )
-
+from models.document import Documento
 from sqlalchemy.sql import func
 from database import Base
 
@@ -14,20 +14,20 @@ class Documento(Base):
     __tablename__ = "documentos"
 
     id = Column(Integer, primary_key=True)
-    nome_original = Column(String)
-    nome_armazenado = Column(String)
+    nomeArquivo = Column(String)
+    caminhoArquivo = Column(String)
 
-    tipo = Column(String)
-    tamanho = Column(Integer)
+    nomeDoc = Column(String)
+    caminhoArquivo = Column(Integer)
 
-    status = Column(String)
-
-    usuario_id = Column(
+    nomeStatus = Column(String)
+    
+    idUsuario = Column(
         Integer,
         ForeignKey("usuarios.id")
     )
 
-    criado_em = Column(
+    dataEnvio = Column(
         DateTime,
         server_default=func.now()
     )

@@ -23,6 +23,9 @@ def create_app() -> FastAPI:
     app.include_router(auth.router)
     app.include_router(health.router)
     app.include_router(usuarios.router)
+    app.include_router(rota.router)
+    app.include_router(listagem.router)
+
 
     return app
 
