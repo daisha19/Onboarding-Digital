@@ -63,7 +63,7 @@ export default function EnviarDocumentos() {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      router.replace("/login");
+      router.replace("/tela-de-login");
       return;
     }
 
@@ -74,7 +74,7 @@ export default function EnviarDocumentos() {
         });
         if (!response.ok) {
           localStorage.removeItem("accessToken");
-          router.replace("/login");
+          router.replace("/tela-de-login");
           return;
         }
         const data = (await response.json()) as UserProfile;
@@ -143,7 +143,7 @@ export default function EnviarDocumentos() {
 
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        router.replace("/login");
+        router.replace("/tela-de-login");
         return;
       }
 
@@ -198,7 +198,7 @@ export default function EnviarDocumentos() {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    router.replace("/login");
+    router.replace("/tela-de-login");
   };
 
   const profileName = profile?.email
