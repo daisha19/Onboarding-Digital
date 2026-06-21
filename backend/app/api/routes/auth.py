@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_user_role
+from app.core.errors import invalid_login_error
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.models import Usuario
@@ -15,12 +16,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     usuario = authenticate_user(db, payload.email, payload.senha)
+
     if usuario is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="E-mail ou senha inválidos",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise invalid_login_error()
 
     return TokenResponse(
         accessToken=create_access_token(str(usuario.idUsuario)),

@@ -54,3 +54,8 @@ def create_rh(db: Session, data: RHCreate) -> RH:
     db.commit()
     db.refresh(rh)
     return rh
+
+
+def get_all_rh(db: Session) -> list[RH]:
+    """Return all RH entries from the database."""
+    return db.query(RH).join(Usuario).all()
