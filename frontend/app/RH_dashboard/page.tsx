@@ -185,7 +185,7 @@
     useEffect(() => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        router.replace("/login");
+      router.replace("/tela-de-login");
         return;
       }
 
@@ -199,7 +199,7 @@
 
           if (!response.ok) {
             localStorage.removeItem("accessToken");
-            router.replace("/login");
+            router.replace("/tela-de-login");
             return;
           }
 
@@ -257,8 +257,8 @@
     }, []);
 
     const handleLogout = () => {
-      localStorage.removeItem("accessToken");
-      router.replace("/login");
+    localStorage.removeItem("accessToken");
+      router.replace("/tela-de-login");
     };
 
     const filteredCollaborators = collaborators.filter((item) => {
@@ -302,7 +302,7 @@
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) {
-          router.replace("/login");
+          router.replace("/tela-de-login");
           return;
         }
 
@@ -361,7 +361,7 @@
         <main className="min-h-screen flex items-center justify-center bg-[#f6f7fb] px-4">
           <div className="max-w-md rounded-3xl border border-red-100 bg-white p-6 text-center shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
             <p className="text-red-700">{error}</p>
-            <Link href="/login" className="mt-4 inline-flex rounded-full bg-blue-600 px-4 py-2 text-white">
+            <Link href="/tela-de-login" className="mt-4 inline-flex rounded-full bg-blue-600 px-4 py-2 text-white">
               Ir para login
             </Link>
           </div>
