@@ -45,7 +45,7 @@ export default function CadastroPage() {
         return;
       }
 
-      router.push("/login");
+      router.push("/tela-de-login");
     } catch {
       setError("Erro ao conectar com a API. Tente novamente.");
     } finally {
@@ -140,7 +140,7 @@ export default function CadastroPage() {
         </form>
 
         <p className="mt-6 text-center text-sm text-zinc-500">
-          Já tem conta? <Link href="/login" className="font-medium text-blue-600">Entrar</Link>
+          Já tem conta? <Link href="/tela-de-login" className="font-medium text-blue-600">Entrar</Link>
         </p>
       </div>
     </main>

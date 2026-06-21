@@ -55,7 +55,7 @@ export default function ColaboradorDashboard() {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      router.replace("/login");
+      router.replace("/tela-de-login");
       return;
     }
 
@@ -69,7 +69,7 @@ export default function ColaboradorDashboard() {
 
         if (!response.ok) {
           localStorage.removeItem("accessToken");
-          router.replace("/login");
+          router.replace("/tela-de-login");
           return;
         }
 
@@ -87,7 +87,7 @@ export default function ColaboradorDashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    router.replace("/login");
+    router.replace("/tela-de-login");
   };
 
   const profileName = profile?.email ? getDisplayNameFromEmail(profile.email) : "João Santos";
@@ -114,7 +114,7 @@ export default function ColaboradorDashboard() {
       <main className="min-h-screen flex items-center justify-center bg-[#f6f7fb] px-4">
         <div className="max-w-md rounded-3xl border border-red-100 bg-white p-6 text-center shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
           <p className="text-red-700">{error}</p>
-          <Link href="/login" className="mt-4 inline-flex rounded-full bg-blue-600 px-4 py-2 text-white">
+          <Link href="/tela-de-login" className="mt-4 inline-flex rounded-full bg-blue-600 px-4 py-2 text-white">
             Ir para login
           </Link>
         </div>
@@ -225,7 +225,7 @@ export default function ColaboradorDashboard() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Card 1: Enviar Documentos */}
-              <Link href="#" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+              <Link href="/colaborador_dashboard/enviar-documentos" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
