@@ -14,6 +14,10 @@ def get_documents_by_user(db: Session, id_usuario: int) -> list[Documento]:
     return db.query(Documento).filter(Documento.idUsuario == id_usuario).all()
 
 
+def get_document_by_id(db: Session, id_doc: int) -> Documento | None:
+    return db.get(Documento, id_doc)
+
+
 def create_document(
     db: Session,
     *,
@@ -22,7 +26,7 @@ def create_document(
     cpf: str,
     id_usuario: int,
     nome_doc: str,
-    nome_status: str = "PENDENTE",
+    nome_status: str = "pendente",
 ) -> Documento:
     tipo_documento = db.get(TipoDocumento, nome_doc)
     if tipo_documento is None:
