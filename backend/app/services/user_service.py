@@ -59,3 +59,8 @@ def create_rh(db: Session, data: RHCreate) -> RH:
 def get_all_rh(db: Session) -> list[RH]:
     """Return all RH entries from the database."""
     return db.query(RH).join(Usuario).all()
+
+
+def get_all_colaboradores(db: Session) -> list[Colaborador]:
+    """Return all collaborator entries from the database."""
+    return db.query(Colaborador).join(Usuario).all()
