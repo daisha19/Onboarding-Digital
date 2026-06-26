@@ -11,7 +11,12 @@ from app.schemas.user import (
     RHCreate,
     RHResponse,
 )
-from app.services.user_service import create_colaborador, create_rh, get_all_rh
+from app.services.user_service import (
+    create_colaborador,
+    create_rh,
+    get_all_colaboradores,
+    get_all_rh,
+)
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
@@ -41,6 +46,23 @@ def create_colaborador_user(
         idUsuario=colaborador.idUsuario,
         email=colaborador.usuario.email,
     )
+
+
+@router.get("/colaboradores", response_model=list[ColaboradorResponse])
+def list_colaborador_users(
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(require_rh),
+):
+    colaboradores = get_all_colaboradores(db)
+    return [
+        ColaboradorResponse(
+            cpf=colaborador.cpf,
+            dataNascimento=colaborador.dataNascimento,
+            idUsuario=colaborador.idUsuario,
+            email=colaborador.usuario.email,
+        )
+        for colaborador in colaboradores
+    ]
 
 
 @router.post("/rh", response_model=RHResponse, status_code=status.HTTP_201_CREATED)
