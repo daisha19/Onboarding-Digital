@@ -53,3 +53,31 @@ def create_document(
     db.refresh(documento)
 
     return documento
+
+
+def update_document_status(
+    db: Session,
+    *,
+    id_doc: int,
+    nome_status: str,
+) -> Documento:
+    documento = db.get(Documento, id_doc)
+    if documento is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Documento não encontrado.",
+        )
+
+    status_documento = db.get(StatusDocumento, nome_status)
+    if status_documento is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Status de documento inválido: {nome_status}",
+        )
+
+    documento.nomeStatus = nome_status
+
+    db.commit()
+    db.refresh(documento)
+
+    return documento
