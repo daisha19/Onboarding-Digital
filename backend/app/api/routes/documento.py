@@ -93,4 +93,4 @@ def update_status_document(
         db=db,
         id_doc=id_doc,
         nome_status=status_update.nomeStatus,
-    )
+    )   
