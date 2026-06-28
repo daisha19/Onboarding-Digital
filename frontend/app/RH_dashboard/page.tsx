@@ -717,14 +717,13 @@
                   Abrir cadastro de colaborador
                   <span className="text-blue-600">+</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setTab("documentos")}
+                <Link
+                  href="/RH_documento"
                   className="flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-left text-sm font-medium text-zinc-700 transition hover:border-blue-200 hover:bg-blue-50"
                 >
-                  Ir para documentos
+                  Analisar documentos
                   <span className="text-blue-600">→</span>
-                </button>
+                </Link>
                 <button
                   type="button"
                   onClick={() => setTab("auditoria")}
