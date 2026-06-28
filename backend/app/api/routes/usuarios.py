@@ -1,12 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.api.deps import require_rh
 from app.db.session import get_db
-from app.models import Usuario
+from app.models import Colaborador, Usuario
+from app.api.deps import get_current_user
 from app.schemas.user import (
     ColaboradorCreate,
+    ColaboradorPerfilResponse,
+    ColaboradorRHResponse,
     ColaboradorResponse,
     RHCreate,
     RHResponse,
@@ -14,6 +17,11 @@ from app.schemas.user import (
 from app.services.user_service import create_colaborador, create_rh, get_all_rh
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
+
+_PENDENTE = {"pendente", "PENDENTE"}
+_EM_ANALISE = {"em_analise"}
+_APROVADO = {"aprovado"}
+_REJEITADO = {"rejeitado"}
 
 
 @router.post(
@@ -64,6 +72,43 @@ def create_rh_user(
         idUsuario=rh.idUsuario,
         email=rh.usuario.email,
     )
+
+
+@router.get("/me/perfil", response_model=ColaboradorPerfilResponse)
+def get_my_profile(current_user: Usuario = Depends(get_current_user)):
+    colaborador = current_user.colaborador
+    if colaborador is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuário não é um colaborador.")
+    return ColaboradorPerfilResponse(
+        idUsuario=current_user.idUsuario,
+        email=current_user.email,
+        cpf=colaborador.cpf,
+        dataNascimento=colaborador.dataNascimento,
+    )
+
+
+@router.get("/colaboradores", response_model=list[ColaboradorRHResponse])
+def list_colaboradores(db: Session = Depends(get_db), _: Usuario = Depends(require_rh)):
+    colaboradores = (
+        db.query(Colaborador)
+        .options(joinedload(Colaborador.usuario), joinedload(Colaborador.documentos))
+        .all()
+    )
+    result = []
+    for c in colaboradores:
+        docs = c.documentos
+        result.append(
+            ColaboradorRHResponse(
+                cpf=c.cpf,
+                email=c.usuario.email,
+                idUsuario=c.idUsuario,
+                pendentes=sum(1 for d in docs if d.nomeStatus in _PENDENTE),
+                emAnalise=sum(1 for d in docs if d.nomeStatus in _EM_ANALISE),
+                aprovados=sum(1 for d in docs if d.nomeStatus in _APROVADO),
+                rejeitados=sum(1 for d in docs if d.nomeStatus in _REJEITADO),
+            )
+        )
+    return result
 
 
 @router.get("/rh", response_model=list[RHResponse])
