@@ -49,3 +49,6 @@ Thumbs.db
 
 # Docker
 *.pid
+
+# Uploads de arquivos (runtime)
+backend/uploads/
