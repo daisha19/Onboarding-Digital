@@ -6,11 +6,12 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
 from app.models.user import Usuario
-from app.schemas.document import DocumentoResponse
+from app.schemas.document import DocumentoResponse, DocumentoStatusUpdate
 from app.services.document_service import (
     create_document,
     get_all_documents,
     get_documents_by_user,
+    update_document_status,
 )
 
 router = APIRouter(
@@ -73,3 +74,23 @@ async def upload_document(
     )
 
     return documento
+
+
+@router.patch("/{id_doc}/status", response_model=DocumentoResponse)
+def update_status_document(
+    id_doc: int,
+    status_update: DocumentoStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    if current_user.rh is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Apenas usuários RH podem alterar o status de documentos.",
+        )
+
+    return update_document_status(
+        db=db,
+        id_doc=id_doc,
+        nome_status=status_update.nomeStatus,
+    )

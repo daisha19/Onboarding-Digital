@@ -29,3 +29,14 @@ class DocumentoUploadResponse(BaseModel):
     dataEnvio: datetime
     nomeStatus: str
     mensagem: str
+class DocumentoUploadResponse(BaseModel):
+    idDoc: int
+    nomeArquivo: str
+    nomeDoc: str
+    dataEnvio: datetime
+    nomeStatus: str
+    mensagem: str
+
+
+class DocumentoStatusUpdate(BaseModel):
+    nomeStatus: str
