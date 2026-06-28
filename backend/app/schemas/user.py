@@ -3,6 +3,7 @@ from datetime import date
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
+
 class UsuarioBase(BaseModel):
     email: EmailStr
 
@@ -43,3 +44,20 @@ class RHResponse(BaseModel):
     cargo: str
     idUsuario: int
     email: EmailStr
+
+
+class ColaboradorRHResponse(BaseModel):
+    cpf: str
+    email: EmailStr
+    idUsuario: int
+    pendentes: int
+    emAnalise: int
+    aprovados: int
+    rejeitados: int
+
+
+class ColaboradorPerfilResponse(BaseModel):
+    idUsuario: int
+    email: EmailStr
+    cpf: str
+    dataNascimento: date

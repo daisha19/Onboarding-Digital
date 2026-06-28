@@ -16,6 +16,10 @@ class DocumentoResponse(BaseModel):
     nomeStatus: str
 
 
+class DocumentoStatusUpdate(BaseModel):
+    nomeStatus: str
+
+
 class TipoDocumentoResponse(BaseModel):
     nomeDoc: str
     descricao: str
