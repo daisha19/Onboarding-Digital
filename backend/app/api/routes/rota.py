@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 import shutil
 import uuid
+from app.services.servico_auditoria import registrar_log
 
 router = APIRouter(prefix="/rota", tags=["rota"])
 
@@ -55,5 +56,20 @@ async def upload_documento(
     db.add(documento)
     db.commit()
     db.refresh(documento)
+
+    registrar_log(
+    db=db,
+    id_usuario=usuario['id'],
+    id_documento=documento.idDoc,
+    nome_acao="UPLOAD_DOCUMENTO",
+    descricao=f"Upload do documento {documento.nomeArquivo}"
+)
+    registrar_log(
+    db=db,
+    id_usuario=usuario.idUsuario,
+    id_documento=documento.idDoc,
+    nome_acao="REJEICAO_DOCUMENTO",
+    descricao=f"Documento {documento.nomeArquivo} rejeitado"
+)
 
     return {"success": True, "id": documento.id, "nome": documento.nomeArquivo}

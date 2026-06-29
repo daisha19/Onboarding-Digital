@@ -25,7 +25,7 @@ def create_app() -> FastAPI:
     app.include_router(usuarios.router)
     app.include_router(rota.router)
     app.include_router(listagem.router)
-
+    app.include_router(auditoria_router)
 
     return app
 

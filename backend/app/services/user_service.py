@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.security import get_password_hash, verify_password
 from app.models import Colaborador, RH, Usuario
 from app.schemas.user import ColaboradorCreate, RHCreate
-
+from app.services.servico_auditoria import registrar_log
 
 def get_user_by_email(db: Session, email: str) -> Usuario | None:
     return db.query(Usuario).filter(Usuario.email == email).first()
@@ -34,6 +34,14 @@ def create_colaborador(db: Session, data: ColaboradorCreate) -> Colaborador:
     db.add(colaborador)
     db.commit()
     db.refresh(colaborador)
+
+    registrar_log(
+    db=db,
+    id_usuario=usuario.idUsuario,
+    id_documento=None,  
+    nome_acao="CADASTRO_COLABORADOR",
+    descricao=f"Cadastro do colaborador {colaborador.cpf}"
+)
     return colaborador
 
 
