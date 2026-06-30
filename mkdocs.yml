@@ -72,9 +72,3 @@ nav:
       - Padrões de Desenvolvimento: padroes-desenvolvimento.md
       - Decisões Técnicas: decisoes-tecnicas.md
       - Operação do Backend: devops.md
-  - Gestão:
-      - Planejamento: planejamento.md
-      - Reuniões: reunioes.md
-      - Entregas:
-          - Semana 9: entregas/semana-09.md
-          - Semana 10: entregas/semana-10.md

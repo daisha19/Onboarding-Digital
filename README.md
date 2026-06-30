@@ -18,7 +18,7 @@ A documentação detalhada do projeto será mantida no GitHub Pages:
 
 - **Docs:** [OnBoarding Digital Docs](https://daisha19.github.io/Onboarding-Digital/)
 
-> Este README tem como objetivo apresentar o projeto de forma sucinta. Detalhes de requisitos, planejamento, arquitetura, reuniões e evolução do produto ficam concentrados na documentação.
+> Este README apresenta o projeto de forma sucinta. Requisitos, arquitetura e decisões técnicas ficam detalhados na documentação.
 
 ## Tecnologias
 
