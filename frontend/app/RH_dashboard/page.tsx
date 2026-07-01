@@ -4,14 +4,15 @@
   import { useRouter } from "next/navigation";
   import { useEffect, useState } from "react";
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8001";
 
-  type DashboardTab = "colaboradores" | "documentos" | "auditoria";
+  type DashboardTab = "solicitacoes" | "colaboradores" | "documentos" | "auditoria";
   type CollaboratorStatus = "Pendente" | "Em Análise" | "Aprovado";
   type DocumentStatus = "Pendente" | "Em análise" | "Aprovado";
 
   type UserProfile = {
     idUsuario: number;
+    nome: string;
     email: string;
     perfil: string;
   };
@@ -48,12 +49,27 @@
   };
 
   type CollaboratorForm = {
+    nome: string;
     email: string;
     senha: string;
     cpf: string;
     dataNascimento: string;
   };
 
+  type RegistrationRequest = {
+    idSolicitacao: number;
+    nome: string;
+    email: string;
+    cpf: string;
+    dataNascimento: string;
+    status: "pendente" | "aprovado" | "recusado";
+    motivoRecusa?: string | null;
+    criadoEm: string;
+    avaliadoEm?: string | null;
+    avaliadoPorRhId?: number | null;
+  };
+
+  // Collaborators are derived from approved registration requests.
   const initialCollaborators: CollaboratorRow[] = [];
 
   const initialDocuments: DocumentRow[] = [];
@@ -101,8 +117,9 @@
   export default function DashboardPage() {
     const router = useRouter();
     const [profile, setProfile] = useState<UserProfile | null>(null);
-    const [tab, setTab] = useState<DashboardTab>("colaboradores");
+    const [tab, setTab] = useState<DashboardTab>("solicitacoes");
     const [collaborators, setCollaborators] = useState<CollaboratorRow[]>(initialCollaborators);
+    const [registrationRequests, setRegistrationRequests] = useState<RegistrationRequest[]>([]);
     const [documents] = useState<DocumentRow[]>(initialDocuments);
     const [audit] = useState<AuditRow[]>(initialAudit);
     const [searchTerm, setSearchTerm] = useState("");
@@ -113,7 +130,10 @@
     const [createError, setCreateError] = useState("");
     const [createSuccess, setCreateSuccess] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [reviewingRequestId, setReviewingRequestId] = useState<number | null>(null);
+    const [promotingRequestId, setPromotingRequestId] = useState<number | null>(null);
     const [newCollaborator, setNewCollaborator] = useState<CollaboratorForm>({
+      nome: "",
       email: "",
       senha: "",
       cpf: "",
@@ -149,6 +169,44 @@
             return;
           }
           setProfile(data);
+
+          // Após carregar o perfil, buscar os usuários RH do backend e popular a tabela
+          try {
+            const requestsResponse = await fetch(`${API_BASE_URL}/usuarios/solicitacoes-cadastro`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (requestsResponse.ok) {
+              const requests = (await requestsResponse.json()) as RegistrationRequest[];
+
+              const mapped = requests.filter((request) => request.status === "aprovado").map((request) => ({
+                id: request.idSolicitacao,
+                name: request.nome,
+                email: request.email,
+                role: "Colaborador",
+                department: "Admissao",
+                progress: 0,
+                steps: 8,
+                status: "Aprovado" as CollaboratorStatus,
+                initials: getInitialsFromText(request.nome),
+                phone: "Não informado",
+                lastUpdate: request.avaliadoEm ? new Date(request.avaliadoEm).toLocaleDateString("pt-BR") : "agora",
+                documents: [] as string[],
+              } as CollaboratorRow));
+
+              setRegistrationRequests(requests);
+              setCollaborators(mapped);
+              setSelectedCollaboratorId(mapped[0]?.id ?? null);
+            } else {
+              setRegistrationRequests([]);
+              setCollaborators([]);
+              setSelectedCollaboratorId(null);
+            }
+          } catch {
+            setError("Não foi possível carregar os usuários RH.");
+          }
         } catch {
           setError("Não foi possível carregar o usuário autenticado.");
         } finally {
@@ -179,21 +237,145 @@
       collaborators.find((item) => item.id === selectedCollaboratorId) ?? filteredCollaborators[0] ?? collaborators[0];
 
     const totalCollaborators = collaborators.length;
-    const pendingCollaborators = collaborators.filter((item) => item.status === "Pendente").length;
+    const pendingCollaborators = registrationRequests.filter((item) => item.status === "pendente").length;
     const analysisCollaborators = collaborators.filter((item) => item.status === "Em Análise").length;
     const approvedCollaborators = collaborators.filter((item) => item.status === "Aprovado").length;
     const pendingDocuments = documents.filter((item) => item.status === "Pendente").length;
 
-    const profileName = profile?.email ? getDisplayNameFromEmail(profile.email) : "RH";
+    const profileName = profile?.nome || (profile?.email ? getDisplayNameFromEmail(profile.email) : "RH");
     const profileInitials = getInitialsFromText(profileName || profile?.email || "RH");
 
     const resetCreateForm = () => {
       setNewCollaborator({
+        nome: "",
         email: "",
         senha: "",
         cpf: "",
         dataNascimento: "",
       });
+    };
+
+    const applyRegistrationRequests = (requests: RegistrationRequest[]) => {
+      const mapped = requests.filter((request) => request.status === "aprovado").map((request) => ({
+        id: request.idSolicitacao,
+        name: request.nome,
+        email: request.email,
+        role: "Colaborador",
+        department: "Admissao",
+        progress: 0,
+        steps: 8,
+        status: "Aprovado" as CollaboratorStatus,
+        initials: getInitialsFromText(request.nome),
+        phone: "Nao informado",
+        lastUpdate: request.avaliadoEm ? new Date(request.avaliadoEm).toLocaleDateString("pt-BR") : "agora",
+        documents: [] as string[],
+      } as CollaboratorRow));
+
+      setRegistrationRequests(requests);
+      setCollaborators(mapped);
+      setSelectedCollaboratorId(mapped[0]?.id ?? null);
+    };
+
+    const refreshRegistrationRequests = async (token: string) => {
+      const response = await fetch(`${API_BASE_URL}/usuarios/solicitacoes-cadastro`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Nao foi possivel carregar as solicitacoes.");
+      }
+
+      const requests = (await response.json()) as RegistrationRequest[];
+      applyRegistrationRequests(requests);
+    };
+
+    const handleReviewRegistration = async (requestId: number, action: "aprovar" | "recusar") => {
+      setCreateError("");
+      setCreateSuccess("");
+      setReviewingRequestId(requestId);
+
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          router.replace("/tela-de-login");
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/usuarios/solicitacoes-cadastro/${requestId}/${action}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: action === "recusar" ? JSON.stringify({ motivoRecusa: "Recusado pelo RH." }) : undefined,
+        });
+
+        if (!response.ok) {
+          const data = (await response.json().catch(() => null)) as { detail?: string } | null;
+          setCreateError(data?.detail ?? "Nao foi possivel avaliar a solicitacao.");
+          return;
+        }
+
+        await refreshRegistrationRequests(token);
+        setCreateSuccess(action === "aprovar" ? "Solicitacao aprovada. O colaborador recebera o login por email." : "Solicitacao recusada.");
+      } catch {
+        setCreateError("Erro ao conectar com a API. Tente novamente.");
+      } finally {
+        setReviewingRequestId(null);
+      }
+    };
+
+    const handlePromoteToRh = async (requestId: number) => {
+      setCreateError("");
+      setCreateSuccess("");
+
+      const matriculaText = window.prompt("Informe a matricula do novo RH:");
+      if (!matriculaText) {
+        return;
+      }
+
+      const matricula = Number(matriculaText);
+      if (!Number.isInteger(matricula)) {
+        setCreateError("Matricula invalida.");
+        return;
+      }
+
+      const cargo = window.prompt("Informe o cargo do novo RH:", "Analista de RH");
+      if (!cargo) {
+        return;
+      }
+
+      setPromotingRequestId(requestId);
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          router.replace("/tela-de-login");
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/usuarios/solicitacoes-cadastro/${requestId}/promover-rh`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ matricula, cargo }),
+        });
+
+        if (!response.ok) {
+          const data = (await response.json().catch(() => null)) as { detail?: string } | null;
+          setCreateError(data?.detail ?? "Nao foi possivel transformar o colaborador em RH.");
+          return;
+        }
+
+        setCreateSuccess("Colaborador promovido para RH com sucesso.");
+      } catch {
+        setCreateError("Erro ao conectar com a API. Tente novamente.");
+      } finally {
+        setPromotingRequestId(null);
+      }
     };
 
     const handleCreateCollaborator = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -226,11 +408,12 @@
 
         const data = (await response.json()) as {
           idUsuario: number;
+          nome: string;
           email: string;
           cpf: string;
         };
 
-        const displayName = getDisplayNameFromEmail(data.email);
+        const displayName = data.nome || getDisplayNameFromEmail(data.email);
         const createdCollaborator: CollaboratorRow = {
           id: data.idUsuario,
           name: displayName,
@@ -390,6 +573,7 @@
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
             {[
+              { key: "solicitacoes", label: "Solicitacoes" },
               { key: "colaboradores", label: "Colaboradores" },
               { key: "documentos", label: "Documentos" },
               { key: "auditoria", label: "Auditoria" },
@@ -415,14 +599,22 @@
             </div>
           )}
 
+          {createError && (
+            <div className="mt-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {createError}
+            </div>
+          )}
+
           <section className="mt-6 overflow-hidden rounded-[1.75rem] border border-white/80 bg-white/90 shadow-[0_16px_45px_rgba(15,23,42,0.08)]">
             <div className="flex flex-col gap-5 border-b border-zinc-100 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-zinc-900">
-                  {tab === "colaboradores" ? "Colaboradores" : tab === "documentos" ? "Documentos" : "Auditoria"}
+                  {tab === "solicitacoes" ? "Solicitacoes" : tab === "colaboradores" ? "Colaboradores" : tab === "documentos" ? "Documentos" : "Auditoria"}
                 </h2>
                 <p className="text-sm text-zinc-500">
-                  {tab === "colaboradores"
+                  {tab === "solicitacoes"
+                    ? "Aprove ou recuse novos cadastros"
+                    : tab === "colaboradores"
                     ? "Gerencie o processo de admissão"
                     : tab === "documentos"
                       ? "Acompanhe envios, pendências e aprovações"
@@ -446,6 +638,80 @@
                 )}
               </div>
             </div>
+
+            {tab === "solicitacoes" && (
+              <div className="p-5">
+                <div className="overflow-x-auto rounded-3xl border border-zinc-100">
+                  <table className="min-w-full text-left text-sm">
+                    <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
+                      <tr>
+                        <th className="px-4 py-3 font-medium">Solicitante</th>
+                        <th className="px-4 py-3 font-medium">CPF</th>
+                        <th className="px-4 py-3 font-medium">Nascimento</th>
+                        <th className="px-4 py-3 font-medium">Status</th>
+                        <th className="px-4 py-3 text-right font-medium">Acoes</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100 bg-white">
+                      {registrationRequests.length === 0 && (
+                        <tr>
+                          <td className="px-4 py-8 text-center text-zinc-500" colSpan={5}>
+                            Nenhuma solicitacao encontrada.
+                          </td>
+                        </tr>
+                      )}
+                      {registrationRequests.map((request) => (
+                        <tr key={request.idSolicitacao} className="hover:bg-zinc-50/80">
+                          <td className="px-4 py-4">
+                            <p className="font-medium text-zinc-900">{request.nome}</p>
+                            <p className="text-sm text-zinc-500">{request.email}</p>
+                          </td>
+                          <td className="px-4 py-4 text-zinc-700">{request.cpf}</td>
+                          <td className="px-4 py-4 text-zinc-700">{new Date(request.dataNascimento).toLocaleDateString("pt-BR")}</td>
+                          <td className="px-4 py-4">
+                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+                              request.status === "pendente"
+                                ? "bg-amber-100 text-amber-700 ring-1 ring-amber-200"
+                                : request.status === "aprovado"
+                                  ? "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200"
+                                  : "bg-red-100 text-red-700 ring-1 ring-red-200"
+                            }`}>
+                              {request.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            {request.status === "pendente" ? (
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  type="button"
+                                  disabled={reviewingRequestId === request.idSolicitacao}
+                                  onClick={() => handleReviewRegistration(request.idSolicitacao, "recusar")}
+                                  className="rounded-full border border-red-200 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  Recusar
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={reviewingRequestId === request.idSolicitacao}
+                                  onClick={() => handleReviewRegistration(request.idSolicitacao, "aprovar")}
+                                  className="rounded-full bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  Aprovar
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-zinc-500">
+                                {request.avaliadoEm ? new Date(request.avaliadoEm).toLocaleDateString("pt-BR") : "Avaliada"}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {tab === "colaboradores" && (
               <div className="p-5">
@@ -525,17 +791,27 @@
                             </span>
                           </td>
                           <td className="px-4 py-4 text-right">
-                            <button
-                              type="button"
-                              onClick={() => openDetails(item.id)}
-                              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
-                            >
-                              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                                <circle cx="12" cy="12" r="3" />
-                                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-                              </svg>
-                              Ver Detalhes
-                            </button>
+                            <div className="flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handlePromoteToRh(item.id)}
+                                disabled={promotingRequestId === item.id}
+                                className="rounded-full border border-blue-200 px-3 py-2 text-sm font-medium text-blue-700 transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                Tornar RH
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => openDetails(item.id)}
+                                className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+                              >
+                                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
+                                  <circle cx="12" cy="12" r="3" />
+                                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+                                </svg>
+                                Ver Detalhes
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -685,6 +961,18 @@
               )}
 
               <form className="mt-5 grid gap-4 sm:grid-cols-2" onSubmit={handleCreateCollaborator}>
+                <label className="sm:col-span-2">
+                  <span className="mb-2 block text-sm font-medium text-zinc-700">Nome completo</span>
+                  <input
+                    type="text"
+                    required
+                    value={newCollaborator.nome}
+                    onChange={(event) => setNewCollaborator((current) => ({ ...current, nome: event.target.value }))}
+                    className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 outline-none transition focus:border-blue-500"
+                    placeholder="Nome completo"
+                  />
+                </label>
+
                 <label className="sm:col-span-2">
                   <span className="mb-2 block text-sm font-medium text-zinc-700">Email</span>
                   <input
