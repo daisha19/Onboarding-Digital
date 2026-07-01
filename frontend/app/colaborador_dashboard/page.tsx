@@ -19,6 +19,10 @@ type DocumentSummary = {
   total: number;
 };
 
+type DocumentoApi = {
+  nomeStatus: string;
+};
+
 function getInitialsFromText(value: string) {
   return value
     .split(/\s+/)
@@ -44,12 +48,11 @@ export default function ColaboradorDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   
-  // Estado mockado baseado na imagem image_b44046.jpg para o resumo de documentos
-  const [summary] = useState<DocumentSummary>({
-    aprovados: 2,
-    emAnalise: 1,
-    pendentes: 5,
-    total: 8,
+  const [summary, setSummary] = useState<DocumentSummary>({
+    aprovados: 0,
+    emAnalise: 0,
+    pendentes: 0,
+    total: 0,
   });
 
   useEffect(() => {
@@ -74,7 +77,30 @@ export default function ColaboradorDashboard() {
         }
 
         const data = (await response.json()) as UserProfile;
+        if (data.perfil.toLowerCase() !== "colaborador") {
+          router.replace("/RH_dashboard");
+          return;
+        }
         setProfile(data);
+
+        const documentsResponse = await fetch(`${API_BASE_URL}/documentos/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (documentsResponse.ok) {
+          const documents = (await documentsResponse.json()) as DocumentoApi[];
+          const statuses = documents.map((document) => document.nomeStatus.toLowerCase());
+          setSummary({
+            aprovados: statuses.filter((value) => value.includes("aprov")).length,
+            emAnalise: statuses.filter((value) => value.includes("anal")).length,
+            pendentes: statuses.filter(
+              (value) => !value.includes("aprov") && !value.includes("anal") && !value.includes("rejeit"),
+            ).length,
+            total: documents.length,
+          });
+        } else {
+          setError("Não foi possível carregar o resumo dos documentos.");
+        }
       } catch {
         setError("Não foi possível carregar o perfil do colaborador.");
       } finally {
@@ -90,13 +116,13 @@ export default function ColaboradorDashboard() {
     router.replace("/tela-de-login");
   };
 
-  const profileName = profile?.email ? getDisplayNameFromEmail(profile.email) : "João Santos";
+  const profileName = profile?.email ? getDisplayNameFromEmail(profile.email) : "Colaborador";
   const profileInitials = getInitialsFromText(profileName);
   
   // Cálculo da porcentagem da barra de progresso
   const progressPercentage = Math.min(
     100,
-    Math.round((summary.aprovados / summary.total) * 100)
+    summary.total === 0 ? 0 : Math.round((summary.aprovados / summary.total) * 100)
   );
 
   if (loading) {
@@ -236,7 +262,7 @@ export default function ColaboradorDashboard() {
               </Link>
 
               {/* Card 2: Meus Documentos */}
-              <Link href="#" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+              <Link href="/colaborador_documento" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -248,8 +274,8 @@ export default function ColaboradorDashboard() {
               </Link>
 
               {/* Card 3: Meu Perfil */}
-              <Link href="#" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
+              <div className="rounded-[1.25rem] border border-white/80 bg-white/70 p-5 opacity-70 shadow-[0_8px_25px_rgba(15,23,42,0.04)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
@@ -257,11 +283,11 @@ export default function ColaboradorDashboard() {
                 </div>
                 <h4 className="mt-4 font-semibold text-zinc-900 text-sm">Meu Perfil</h4>
                 <p className="text-xs text-zinc-500 mt-0.5">Gerencie suas informações pessoais</p>
-              </Link>
+              </div>
 
               {/* Card 4: Suporte */}
-              <Link href="#" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
+              <div className="rounded-[1.25rem] border border-white/80 bg-white/70 p-5 opacity-70 shadow-[0_8px_25px_rgba(15,23,42,0.04)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                     <path d="m22 6-10 7L2 6" />
@@ -269,7 +295,7 @@ export default function ColaboradorDashboard() {
                 </div>
                 <h4 className="mt-4 font-semibold text-zinc-900 text-sm">Suporte</h4>
                 <p className="text-xs text-zinc-500 mt-0.5">Entre em contato com o RH</p>
-              </Link>
+              </div>
             </div>
           </div>
 

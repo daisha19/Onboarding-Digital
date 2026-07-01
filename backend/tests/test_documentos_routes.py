@@ -14,6 +14,21 @@ def test_documentos_routes_registered_in_openapi():
     assert "/documentos/upload" in paths
     assert "post" in paths["/documentos/upload"]
 
+    assert "/documentos/{id_doc}" in paths
+    assert "get" in paths["/documentos/{id_doc}"]
+    assert "delete" in paths["/documentos/{id_doc}"]
+
+    assert "/documentos/{id_doc}/download" in paths
+    assert "get" in paths["/documentos/{id_doc}/download"]
+
+
+def test_swagger_uses_bearer_authentication():
+    components = client.get("/openapi.json").json()["components"]
+
+    assert "BearerAuth" in components["securitySchemes"]
+    assert components["securitySchemes"]["BearerAuth"]["type"] == "http"
+    assert components["securitySchemes"]["BearerAuth"]["scheme"] == "bearer"
+
 
 def test_documentos_routes_require_authentication():
     assert client.get("/documentos/tipos").status_code == 401

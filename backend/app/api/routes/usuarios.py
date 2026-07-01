@@ -21,6 +21,23 @@ from app.services.user_service import (
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 
+@router.get("/colaboradores", response_model=list[ColaboradorResponse])
+def list_colaborador_users(
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(require_rh),
+):
+    colaboradores = get_all_colaboradores(db)
+    return [
+        ColaboradorResponse(
+            cpf=c.cpf,
+            dataNascimento=c.dataNascimento,
+            idUsuario=c.idUsuario,
+            email=c.usuario.email,
+        )
+        for c in colaboradores
+    ]
+
+
 @router.post(
     "/colaboradores",
     response_model=ColaboradorResponse,
@@ -46,23 +63,6 @@ def create_colaborador_user(
         idUsuario=colaborador.idUsuario,
         email=colaborador.usuario.email,
     )
-
-
-@router.get("/colaboradores", response_model=list[ColaboradorResponse])
-def list_colaborador_users(
-    db: Session = Depends(get_db),
-    _: Usuario = Depends(require_rh),
-):
-    colaboradores = get_all_colaboradores(db)
-    return [
-        ColaboradorResponse(
-            cpf=colaborador.cpf,
-            dataNascimento=colaborador.dataNascimento,
-            idUsuario=colaborador.idUsuario,
-            email=colaborador.usuario.email,
-        )
-        for colaborador in colaboradores
-    ]
 
 
 @router.post("/rh", response_model=RHResponse, status_code=status.HTTP_201_CREATED)
@@ -92,6 +92,11 @@ def create_rh_user(
 def list_rh_users(db: Session = Depends(get_db), _: Usuario = Depends(require_rh)):
     rhs = get_all_rh(db)
     return [
-        RHResponse(matricula=r.matricula, cargo=r.cargo, idUsuario=r.idUsuario, email=r.usuario.email)
+        RHResponse(
+            matricula=r.matricula,
+            cargo=r.cargo,
+            idUsuario=r.idUsuario,
+            email=r.usuario.email,
+        )
         for r in rhs
     ]
