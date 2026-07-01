@@ -48,7 +48,6 @@ export default function LoginPage() {
 
       const loginData = await loginRes.json();
       const token = loginData.accessToken;
-
       localStorage.setItem("accessToken", token);
 
       const meRes = await fetch(`${API_BASE_URL}/auth/me`, {
