@@ -1,5 +1,5 @@
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.errors import (
@@ -12,9 +12,10 @@ from app.db.session import get_db
 from app.models import Usuario
 
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/auth/login",
+bearer_scheme = HTTPBearer(
     auto_error=False,
+    scheme_name="BearerAuth",
+    description="Cole aqui o accessToken retornado por POST /auth/login.",
 )
 
 
@@ -27,15 +28,16 @@ def get_user_role(usuario: Usuario) -> str:
 
 
 def get_current_user(
-    token: str | None = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     db: Session = Depends(get_db),
 ) -> Usuario:
-    if token is None:
+    if credentials is None:
         raise missing_token_error()
 
     credentials_exception = invalid_token_error()
 
     try:
+        token = credentials.credentials
         payload = decode_access_token(token)
         user_id = int(payload.get("sub"))
     except (TypeError, ValueError):

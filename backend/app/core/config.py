@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     UPLOAD_MAX_SIZE_MB: int = 10
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    DOCUMENT_STORAGE_BACKEND: str = "local"
+    GCS_BUCKET_NAME: str = ""
+    GCS_UPLOAD_PREFIX: str = "documentos"
+    LOCAL_UPLOAD_DIR: str = "uploads"
 
     @property
     def cors_origins(self) -> list[str]:
