@@ -19,7 +19,7 @@ export default function LoginPage() {
     return Object.keys(e).length === 0;
   };
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8001";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,10 +29,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       // 1. Faz o Login para obter o Token
-      const loginRes = await fetch(`${API_URL}/auth/login`, {
+      const loginRes = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha: password }),
+        body: JSON.stringify({ email: email.trim(), senha: password }),
       });
 
       if (!loginRes.ok) {
@@ -51,7 +51,7 @@ export default function LoginPage() {
       localStorage.setItem("accessToken", token);
 
       // 2. Bate no endpoint /auth/me usando o token obtido para saber QUEM é o usuário
-      const meRes = await fetch(`${API_URL}/auth/me`, {
+      const meRes = await fetch(`${API_BASE_URL}/auth/me`, {
         method: "GET",
         headers: { 
           "Authorization": `Bearer ${token}`,
@@ -77,7 +77,7 @@ export default function LoginPage() {
         window.location.href = "/colaborador_dashboard";
       }
 
-    } catch (err) {
+    } catch {
       setAuthError("Erro de conexão com o servidor. Verifique se o backend está rodando.");
     } finally {
       setLoading(false);
@@ -172,7 +172,7 @@ export default function LoginPage() {
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between text-sm text-zinc-500 gap-3">
           <Link href="#" className="text-blue-600">Esqueci minha senha</Link>
-          <Link href="#" className="text-zinc-600">Criar conta</Link>
+          <Link href="/cadastro" className="text-zinc-600">Criar conta</Link>
         </div>
       </div>
     </div>

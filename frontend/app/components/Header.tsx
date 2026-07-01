@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function Header() {
   return (
     <header className="w-full py-6 px-8 flex items-center justify-between">

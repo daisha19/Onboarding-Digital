@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function Hero() {
   return (
     <section className="w-full max-w-5xl mx-auto px-8 py-16">

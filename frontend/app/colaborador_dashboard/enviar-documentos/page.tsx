@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8001";
 
 type TipoDocumento = {
   nomeDoc: string;
@@ -15,6 +15,7 @@ type TipoDocumento = {
 
 type UserProfile = {
   idUsuario: number;
+  nome: string;
   email: string;
   perfil: string;
 };
@@ -201,9 +202,7 @@ export default function EnviarDocumentos() {
     router.replace("/tela-de-login");
   };
 
-  const profileName = profile?.email
-    ? getDisplayNameFromEmail(profile.email)
-    : "Colaborador";
+  const profileName = profile?.nome || (profile?.email ? getDisplayNameFromEmail(profile.email) : "Colaborador");
   const profileInitials = getInitialsFromText(profileName);
 
   if (profileLoading || tiposLoading) {
