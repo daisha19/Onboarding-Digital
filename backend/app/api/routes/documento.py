@@ -1,16 +1,31 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
+from app.models.document import Documento
 from app.models.user import Usuario
 from app.schemas.document import DocumentoResponse
 from app.services.document_service import (
     create_document,
+    delete_document,
     get_all_documents,
     get_document_by_id,
     get_documents_by_user,
 )
-from app.services.storage import save_upload_file
+from app.services.storage import (
+    build_download_response,
+    delete_stored_file,
+    save_upload_file,
+)
 
 router = APIRouter(
     prefix="/documentos",
@@ -18,29 +33,12 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=list[DocumentoResponse])
-def list_documents(
-    db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user),
-):
-    if current_user.rh is not None:
-        return get_all_documents(db)
-
-    if current_user.colaborador is not None:
-        return get_documents_by_user(db, current_user.idUsuario)
-
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="Perfil de usuario invalido.",
-    )
-
-
-@router.get("/{id_doc}", response_model=DocumentoResponse)
-def get_document(
+def _get_allowed_document(
+    *,
+    db: Session,
     id_doc: int,
-    db: Session = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user),
-):
+    current_user: Usuario,
+) -> Documento:
     documento = get_document_by_id(db, id_doc)
     if documento is None:
         raise HTTPException(
@@ -61,6 +59,69 @@ def get_document(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Voce nao tem permissao para acessar este documento.",
     )
+
+
+@router.get("/", response_model=list[DocumentoResponse])
+def list_documents(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    if current_user.rh is not None:
+        return get_all_documents(db)
+
+    if current_user.colaborador is not None:
+        return get_documents_by_user(db, current_user.idUsuario)
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Perfil de usuario invalido.",
+    )
+
+
+@router.get("/{id_doc}/download")
+def download_document(
+    id_doc: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    documento = _get_allowed_document(
+        db=db,
+        id_doc=id_doc,
+        current_user=current_user,
+    )
+    return build_download_response(
+        path=documento.caminhoArquivo,
+        filename=documento.nomeArquivo,
+    )
+
+
+@router.get("/{id_doc}", response_model=DocumentoResponse)
+def get_document(
+    id_doc: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    return _get_allowed_document(
+        db=db,
+        id_doc=id_doc,
+        current_user=current_user,
+    )
+
+
+@router.delete("/{id_doc}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_document(
+    id_doc: int,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    documento = _get_allowed_document(
+        db=db,
+        id_doc=id_doc,
+        current_user=current_user,
+    )
+    delete_stored_file(path=documento.caminhoArquivo)
+    delete_document(db, documento)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post("/", response_model=DocumentoResponse)

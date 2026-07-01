@@ -1,13 +1,11 @@
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
-from app.core.config import settings
 from app.db.session import get_db
-from app.models import Documento, StatusDocumento, TipoDocumento, Usuario
+from app.models import TipoDocumento, Usuario
 from app.schemas.document import DocumentoUploadResponse, TipoDocumentoResponse
+from app.services.document_service import create_document
 from app.services.storage import save_upload_file
 
 router = APIRouter(prefix="/documentos", tags=["documentos"])
@@ -53,18 +51,8 @@ def upload_documento(
             },
         )
 
-    max_size = settings.UPLOAD_MAX_SIZE_MB * 1024 * 1024
     contents = arquivo.file.read()
     arquivo.file.seek(0)
-
-    if len(contents) > max_size:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "code": "FILE_TOO_LARGE",
-                "message": f"O arquivo excede o limite de {settings.UPLOAD_MAX_SIZE_MB} MB.",
-            },
-        )
 
     colaborador = current_user.colaborador
     if colaborador is None:
@@ -82,27 +70,15 @@ def upload_documento(
         cpf=colaborador.cpf,
     )
 
-    status_pendente = db.get(StatusDocumento, "pendente")
-    if status_pendente is None:
-        status_pendente = StatusDocumento(
-            nomeStatus="pendente",
-            descricao="Documento pendente de analise",
-        )
-        db.add(status_pendente)
-        db.flush()
-
-    documento = Documento(
-        caminhoArquivo=stored_file.path,
-        dataEnvio=datetime.now(timezone.utc),
-        nomeArquivo=stored_file.original_filename,
+    documento = create_document(
+        db=db,
+        caminho_arquivo=stored_file.path,
+        nome_arquivo=stored_file.original_filename,
         cpf=colaborador.cpf,
-        idUsuario=current_user.idUsuario,
-        nomeDoc=nomeDoc,
-        nomeStatus="pendente",
+        id_usuario=current_user.idUsuario,
+        nome_doc=nomeDoc,
+        nome_status="pendente",
     )
-    db.add(documento)
-    db.commit()
-    db.refresh(documento)
 
     return DocumentoUploadResponse(
         idDoc=documento.idDoc,
