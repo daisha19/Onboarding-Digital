@@ -11,6 +11,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Cria o primeiro usuário RH.")
     parser.add_argument("--email", required=True)
     parser.add_argument("--senha", required=True)
+    parser.add_argument("--nome")
     parser.add_argument("--matricula", required=True, type=int)
     parser.add_argument("--cargo", required=True)
     args = parser.parse_args()
@@ -24,6 +25,7 @@ def main() -> None:
             db,
             RHCreate(
                 email=args.email,
+                nome=args.nome or args.email.split("@")[0],
                 senha=args.senha,
                 matricula=args.matricula,
                 cargo=args.cargo,

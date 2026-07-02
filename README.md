@@ -99,15 +99,47 @@ docker compose ps
 
 A API ficará disponível em:
 
-- `http://localhost:8000`
-- `http://localhost:8000/docs`
-- `http://localhost:8000/health`
+- `http://localhost:8001`
+- `http://localhost:8001/docs`
+- `http://localhost:8001/health`
 
 Para parar os serviços:
 
 ```bash
 docker compose down
 ```
+
+## Google Cloud Storage para documentos
+
+O projeto esta preparado para salvar documentos em disco local durante o
+desenvolvimento e no Google Cloud Storage quando a integracao estiver ativa.
+
+No `.env`, o modo local fica assim:
+
+```env
+DOCUMENT_STORAGE_BACKEND=local
+LOCAL_UPLOAD_DIR=uploads
+```
+
+Para usar Google Cloud Storage, crie um bucket privado, crie uma conta de servico
+para o backend e conceda permissao de escrita no bucket, como `Storage Object User`.
+Depois configure:
+
+```env
+DOCUMENT_STORAGE_BACKEND=gcs
+GCS_BUCKET_NAME=nome-do-bucket
+GCS_UPLOAD_PREFIX=documentos
+```
+
+Se estiver rodando localmente com uma chave JSON da conta de servico, configure
+tambem:
+
+```env
+GOOGLE_APPLICATION_CREDENTIALS=C:\caminho\para\service-account.json
+```
+
+Nao coloque chaves JSON ou credenciais reais no repositorio. Em producao, prefira
+usar a conta de servico do ambiente onde o backend estiver rodando.
 
 # Status do Projeto
 

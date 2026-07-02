@@ -33,3 +33,7 @@ class DocumentoUploadResponse(BaseModel):
     dataEnvio: datetime
     nomeStatus: str
     mensagem: str
+
+
+class DocumentoStatusUpdate(BaseModel):
+    nomeStatus: str

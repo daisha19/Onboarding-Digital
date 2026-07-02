@@ -1,8 +1,13 @@
 "use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8001";
+
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -13,13 +18,11 @@ export default function LoginPage() {
   const validate = () => {
     const e: { email?: string; password?: string } = {};
     if (!email.trim()) e.email = "Preencha o email.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = "Email inválido.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = "Email invalido.";
     if (!password) e.password = "Preencha a senha.";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,16 +31,15 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      // 1. Faz o Login para obter o Token
-      const loginRes = await fetch(`${API_URL}/auth/login`, {
+      const loginRes = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, senha: password }),
+        body: JSON.stringify({ email: email.trim(), senha: password }),
       });
 
       if (!loginRes.ok) {
         if (loginRes.status === 401) {
-          setAuthError("E-mail ou senha inválidos.");
+          setAuthError("E-mail ou senha invalidos.");
         } else {
           setAuthError("Erro no servidor. Tente novamente mais tarde.");
         }
@@ -46,39 +48,36 @@ export default function LoginPage() {
 
       const loginData = await loginRes.json();
       const token = loginData.accessToken;
-      
-      // Salva o token no localStorage
+
       localStorage.setItem("accessToken", token);
 
-      // 2. Bate no endpoint /auth/me usando o token obtido para saber QUEM é o usuário
-      const meRes = await fetch(`${API_URL}/auth/me`, {
+      const meRes = await fetch(`${API_BASE_URL}/auth/me`, {
         method: "GET",
-        headers: { 
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json" 
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!meRes.ok) {
-        setAuthError("Erro ao carregar perfil do usuário.");
+        localStorage.removeItem("accessToken");
+        setAuthError("Erro ao carregar perfil do usuario.");
         return;
       }
 
       const userData = await meRes.json();
-      
-      // 3. Redirecionamento Dinâmico baseado no retorno de 'perfil'
-      // Normaliza para minúsculo para aceitar "RH", "rh", "Colaborador", etc. sem quebrar
       const perfilUsuario = userData.perfil?.toLowerCase();
 
-      // 3. Redirecionamento baseado nos nomes REAIS das suas pastas:
       if (perfilUsuario === "rh") {
-        window.location.href = "/RH_dashboard";
+        router.replace("/RH_dashboard");
+      } else if (perfilUsuario === "colaborador") {
+        router.replace("/colaborador_dashboard");
       } else {
-        window.location.href = "/colaborador_dashboard";
+        localStorage.removeItem("accessToken");
+        setAuthError("Perfil de usuario invalido.");
       }
-
-    } catch (err) {
-      setAuthError("Erro de conexão com o servidor. Verifique se o backend está rodando.");
+    } catch {
+      setAuthError("Erro de conexao com o servidor. Verifique se o backend esta rodando.");
     } finally {
       setLoading(false);
     }
@@ -99,7 +98,7 @@ export default function LoginPage() {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="6" y="6" width="12" height="12" rx="2" fill="#fff"/></svg>
           </div>
           <h1 className="text-2xl font-semibold">OnBoarding Digital</h1>
-          <p className="text-sm text-zinc-500">Sistema de admissão de colaboradores</p>
+          <p className="text-sm text-zinc-500">Sistema de admissao de colaboradores</p>
         </div>
 
         {authError && (
@@ -171,8 +170,8 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between text-sm text-zinc-500 gap-3">
-          <Link href="#" className="text-blue-600">Esqueci minha senha</Link>
-          <Link href="#" className="text-zinc-600">Criar conta</Link>
+          <span className="text-zinc-400">Recuperacao de senha indisponivel</span>
+          <Link href="/cadastro" className="text-zinc-600">Criar conta</Link>
         </div>
       </div>
     </div>

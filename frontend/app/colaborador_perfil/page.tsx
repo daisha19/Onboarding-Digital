@@ -8,6 +8,7 @@ const API = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:8000';
 
 interface Perfil {
   idUsuario: number;
+  nome: string;
   email: string;
   cpf: string;
   dataNascimento: string;
@@ -25,15 +26,6 @@ function formatDate(iso: string) {
   } catch {
     return iso;
   }
-}
-
-function getDisplayName(email: string) {
-  const local = email.split('@')[0] ?? 'colaborador';
-  return local
-    .replace(/[._-]+/g, ' ')
-    .split(' ')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
 }
 
 function getInitials(name: string) {
@@ -86,7 +78,7 @@ export default function ColaboradorPerfil() {
     );
   }
 
-  const nome = perfil ? getDisplayName(perfil.email) : '';
+  const nome = perfil?.nome ?? '';
   const iniciais = getInitials(nome);
 
   return (

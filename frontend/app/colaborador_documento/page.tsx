@@ -1,72 +1,147 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8001";
 
-interface Documento {
+type DocumentoApi = {
   idDoc: number;
+  caminhoArquivo: string;
+  dataEnvio: string;
   nomeArquivo: string;
+  cpf: string;
+  idUsuario: number;
   nomeDoc: string;
   nomeStatus: string;
-  dataEnvio: string;
-}
-
-const STATUS_LABEL: Record<string, string> = {
-  pendente: 'Pendente',
-  PENDENTE: 'Pendente',
-  em_analise: 'Em Análise',
-  aprovado: 'Aprovado',
-  rejeitado: 'Rejeitado',
 };
 
-const STATUS_STYLE: Record<string, string> = {
-  Aprovado: 'bg-green-100 text-green-700 border-green-200',
-  'Em Análise': 'bg-blue-100 text-blue-700 border-blue-200',
-  Rejeitado: 'bg-red-100 text-red-700 border-red-200',
-  Pendente: 'bg-amber-100 text-amber-700 border-amber-200',
-};
-
-function getStatusLabel(s: string) {
-  return STATUS_LABEL[s] ?? s;
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
 }
 
-function formatDate(iso: string) {
-  try {
-    return new Date(iso).toLocaleString('pt-BR', {
-      day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    });
-  } catch {
-    return iso;
+function getStatusLabel(status: string) {
+  const normalized = status.toLowerCase();
+  if (normalized.includes("aprov")) return "Aprovado";
+  if (normalized.includes("rejeit")) return "Rejeitado";
+  if (normalized.includes("anal")) return "Em Análise";
+  return "Pendente";
+}
+
+function getStatusStyle(status: string) {
+  switch (getStatusLabel(status)) {
+    case "Aprovado":
+      return "bg-green-100 text-green-700 border-green-200";
+    case "Em Análise":
+      return "bg-blue-100 text-blue-700 border-blue-200";
+    case "Rejeitado":
+      return "bg-red-100 text-red-700 border-red-200";
+    default:
+      return "bg-amber-100 text-amber-700 border-amber-200";
   }
 }
 
 export default function ColaboradorDocumento() {
   const router = useRouter();
-  const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [documentos, setDocumentos] = useState<DocumentoApi[]>([]);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
+  const [error, setError] = useState("");
   const [downloadLoading, setDownloadLoading] = useState<number | null>(null);
-  const tokenRef = useRef<string | null>(null);
 
-  const handleVisualizar = async (idDoc: number, nomeArquivo: string) => {
+  function handleUnauthorized() {
+    localStorage.removeItem("accessToken");
+    router.replace("/tela-de-login");
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      router.replace("/tela-de-login");
+      return;
+    }
+
+    async function loadDocuments() {
+      try {
+        const profileResponse = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (profileResponse.status === 401) {
+          handleUnauthorized();
+          return;
+        }
+
+        if (!profileResponse.ok) {
+          setError("Não foi possível validar o perfil de acesso.");
+          return;
+        }
+
+        const profile = (await profileResponse.json()) as { perfil: string };
+        if (profile.perfil.toLowerCase() !== "colaborador") {
+          router.replace("/RH_dashboard");
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/documentos/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.status === 401) {
+          handleUnauthorized();
+          return;
+        }
+
+        if (!response.ok) {
+          setError("Não foi possível carregar seus documentos.");
+          return;
+        }
+
+        const data = (await response.json()) as DocumentoApi[];
+        setDocumentos(data);
+      } catch {
+        setError("Erro de conexão com a API.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void loadDocuments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
+
+  async function handleVisualizar(idDoc: number, nomeArquivo: string) {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      handleUnauthorized();
+      return;
+    }
+
     setDownloadLoading(idDoc);
     try {
-      const res = await fetch(`${API}/documentos/${idDoc}/download`, {
-        headers: { Authorization: `Bearer ${tokenRef.current}` },
+      const response = await fetch(`${API_BASE_URL}/documentos/${idDoc}/download`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.status === 401 || res.status === 403) {
-        localStorage.removeItem('accessToken');
-        router.replace('/tela-de-login');
+
+      if (response.status === 401 || response.status === 403) {
+        handleUnauthorized();
         return;
       }
-      if (!res.ok) { alert('Arquivo não disponível no servidor.'); return; }
-      const blob = await res.blob();
+
+      if (!response.ok) {
+        alert("Arquivo não disponível no servidor.");
+        return;
+      }
+
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = nomeArquivo;
       a.click();
@@ -74,129 +149,87 @@ export default function ColaboradorDocumento() {
     } finally {
       setDownloadLoading(null);
     }
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) { router.replace('/tela-de-login'); return; }
-    tokenRef.current = token;
-
-    const fetchDocs = async () => {
-      try {
-        const res = await fetch(`${API}/documentos/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (res.status === 401 || res.status === 403) {
-          localStorage.removeItem('accessToken');
-          router.replace('/tela-de-login');
-          return;
-        }
-
-        if (!res.ok) throw new Error('Falha ao carregar documentos');
-
-        setDocumentos(await res.json() as Documento[]);
-      } catch {
-        setErro('Não foi possível carregar seus documentos. Tente novamente.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchDocs();
-  }, [router]);
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center">
         <p className="text-slate-500 font-medium animate-pulse">Carregando seus documentos...</p>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8 text-slate-800">
-      <div className="max-w-4xl mx-auto">
-
-        <div className="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 mb-1">Meus Documentos</h1>
-              <p className="text-slate-500 text-sm">
-                Acompanhe o status da validação dos seus documentos enviados ao RH.
-              </p>
-            </div>
-            <Link
-              href="/colaborador_dashboard"
-              className="text-xs font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors"
-            >
-              ← Voltar
-            </Link>
-          </div>
+    <main className="min-h-screen bg-slate-50 p-6 text-slate-800 sm:p-8">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <Link href="/colaborador_dashboard" className="text-sm font-medium text-slate-500 hover:text-blue-600">
+            Voltar ao dashboard
+          </Link>
+          <Link
+            href="/colaborador_dashboard/enviar-documentos"
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+          >
+            Enviar documento
+          </Link>
         </div>
 
-        {erro && (
-          <div className="mb-6 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {erro}
+        <section className="mb-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <h1 className="text-2xl font-bold text-slate-900">Meus Documentos</h1>
+          <p className="mt-2 text-sm text-slate-500">
+            Acompanhe os arquivos enviados e o status de análise pela equipe de RH.
+          </p>
+        </section>
+
+        {error && (
+          <div className="mb-6 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+            {error}
           </div>
         )}
 
-        {documentos.length === 0 && !erro ? (
-          <div className="bg-white p-12 rounded-2xl shadow-sm border border-slate-100 text-center">
-            <div className="text-4xl mb-4">📂</div>
+        {documentos.length === 0 ? (
+          <section className="rounded-2xl border border-slate-100 bg-white p-12 text-center shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">Nenhum documento enviado</h3>
-            <p className="text-slate-400 text-sm mt-1">
-              Você ainda não enviou nenhum documento.
+            <p className="mt-2 text-sm text-slate-400">
+              Envie seus primeiros documentos para iniciar a análise do RH.
             </p>
-            <Link
-              href="/colaborador_dashboard/enviar-documentos"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
-            >
-              Enviar agora
-            </Link>
-          </div>
+          </section>
         ) : (
-          <div className="space-y-4">
-            {documentos.map((doc) => {
-              const label = getStatusLabel(doc.nomeStatus);
-
-              return (
-                <div
-                  key={doc.idDoc}
-                  className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-                >
-                  <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <h3 className="font-semibold text-slate-900">{doc.nomeArquivo}</h3>
-                      <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded font-mono">
-                        {doc.nomeDoc}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-400">
-                      Enviado em: {formatDate(doc.dataEnvio)}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3 justify-between sm:justify-end">
-                    <span className={`text-xs px-3 py-1 rounded-full font-semibold border ${STATUS_STYLE[label] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                      {label}
+          <section className="space-y-4">
+            {documentos.map((doc) => (
+              <article
+                key={doc.idDoc}
+                className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="font-semibold text-slate-900">{doc.nomeArquivo}</h3>
+                    <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-500">
+                      {doc.nomeDoc}
                     </span>
-
-                    <button
-                      onClick={() => handleVisualizar(doc.idDoc, doc.nomeArquivo)}
-                      disabled={downloadLoading === doc.idDoc}
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {downloadLoading === doc.idDoc ? 'Baixando...' : 'Visualizar ↗'}
-                    </button>
                   </div>
+                  <p className="mt-2 text-xs text-slate-400">Enviado em {formatDate(doc.dataEnvio)}</p>
                 </div>
-              );
-            })}
-          </div>
-        )}
 
+                <div className="flex items-center gap-3 justify-between sm:justify-end">
+                  <span className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold ${getStatusStyle(doc.nomeStatus)}`}>
+                    {getStatusLabel(doc.nomeStatus)}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => handleVisualizar(doc.idDoc, doc.nomeArquivo)}
+                    disabled={downloadLoading === doc.idDoc}
+                    className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {downloadLoading === doc.idDoc ? "Baixando..." : "Visualizar ↗"}
+                  </button>
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
       </div>
-    </div>
+    </main>
   );
 }

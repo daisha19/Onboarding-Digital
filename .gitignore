@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 venv/
 .venv/
+.venv-*/
 .venv-docs/
 env/
 ENV/
@@ -16,6 +17,8 @@ ENV/
 htmlcov/
 __pycache__/
 *.pyc
+backend/uploads/
+uploads/
 
 # Node / Next.js
 node_modules/
@@ -32,6 +35,14 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+.secrets/
+
+# Credentials
+.secrets/
+backend/.secrets/
+*service-account*.json
+*google-credentials*.json
+gcp-key*.json
 
 # MkDocs
 site/
