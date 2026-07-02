@@ -51,7 +51,7 @@ def auth_headers(usuario: Usuario) -> dict[str, str]:
 
 
 def create_rh(db, email: str = "rh@example.com", matricula: int = 1001) -> Usuario:
-    usuario = Usuario(email=email, senha="hash")
+    usuario = Usuario(nome="Profissional de RH", email=email, senha="hash")
     db.add(usuario)
     db.flush()
     db.add(RH(matricula=matricula, cargo="Analista de RH", idUsuario=usuario.idUsuario))
@@ -65,7 +65,7 @@ def create_colaborador(
     email: str = "colaborador@example.com",
     cpf: str = "12345678901",
 ) -> Usuario:
-    usuario = Usuario(email=email, senha="hash")
+    usuario = Usuario(nome="Colaborador", email=email, senha="hash")
     db.add(usuario)
     db.flush()
     db.add(

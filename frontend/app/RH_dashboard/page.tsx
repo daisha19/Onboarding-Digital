@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8001";
 
-type DashboardTab = "colaboradores" | "documentos" | "auditoria";
+type DashboardTab = "solicitacoes" | "colaboradores" | "documentos" | "auditoria";
 type CollaboratorStatus = "Pendente" | "Em Análise" | "Aprovado";
 type DocumentStatus = "Pendente" | "Em análise" | "Aprovado" | "Rejeitado";
 
 type UserProfile = {
   idUsuario: number;
+  nome: string;
   email: string;
   perfil: string;
 };
@@ -20,7 +21,20 @@ type ApiColaborador = {
   cpf: string;
   dataNascimento: string;
   idUsuario: number;
+  nome: string;
   email: string;
+};
+
+type RegistrationRequest = {
+  idSolicitacao: number;
+  nome: string;
+  email: string;
+  cpf: string;
+  dataNascimento: string;
+  status: "pendente" | "aprovado" | "recusado";
+  motivoRecusa?: string | null;
+  criadoEm: string;
+  avaliadoEm?: string | null;
 };
 
 type ApiDocumento = {
@@ -238,7 +252,7 @@ function mapCollaborators(
 
   return colaboradores.map((colaborador) => {
     const collaboratorDocuments = documentsByUser.get(colaborador.idUsuario) ?? [];
-    const displayName = getDisplayNameFromEmail(colaborador.email);
+    const displayName = colaborador.nome || getDisplayNameFromEmail(colaborador.email);
     const approvedDocuments = collaboratorDocuments.filter(
       (documento) => normalizeDocumentStatus(documento.nomeStatus) === "Aprovado",
     );
@@ -354,6 +368,10 @@ export default function DashboardPage() {
   const [apiCollaborators, setApiCollaborators] = useState<ApiColaborador[]>([]);
   const [apiDocuments, setApiDocuments] = useState<ApiDocumento[]>([]);
   const [audit, setAudit] = useState<AuditRow[]>([]);
+  const [registrationRequests, setRegistrationRequests] = useState<RegistrationRequest[]>([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [requestsError, setRequestsError] = useState("");
+  const [reviewingRequestId, setReviewingRequestId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<CollaboratorStatus | "Todos">("Todos");
   const [selectedCollaboratorId, setSelectedCollaboratorId] = useState<number | null>(null);
@@ -387,6 +405,7 @@ export default function DashboardPage() {
       setCollaboratorsLoading(true);
       setDocumentsLoading(true);
       setAuditLoading(true);
+      setRequestsLoading(true);
 
       await Promise.all([
         (async () => {
@@ -438,6 +457,25 @@ export default function DashboardPage() {
             setAuditError("Não foi possível carregar os logs de auditoria.");
           } finally {
             setAuditLoading(false);
+          }
+        })(),
+        (async () => {
+          try {
+            const data = await fetchJson<RegistrationRequest[]>(
+              `${API_BASE_URL}/usuarios/solicitacoes-cadastro`,
+              token,
+            );
+            setRegistrationRequests(data);
+            setRequestsError("");
+          } catch (error) {
+            if (error instanceof UnauthorizedRequestError) {
+              handleUnauthorized();
+              return;
+            }
+            setRegistrationRequests([]);
+            setRequestsError("Não foi possível carregar as solicitações de cadastro.");
+          } finally {
+            setRequestsLoading(false);
           }
         })(),
       ]);
@@ -515,7 +553,7 @@ export default function DashboardPage() {
   const approvedDocuments = documents.filter((item) => item.status === "Aprovado").length;
   const statusCardsLoading = collaboratorsLoading || documentsLoading;
 
-  const profileName = profile?.email ? getDisplayNameFromEmail(profile.email) : "RH";
+  const profileName = profile?.nome || (profile?.email ? getDisplayNameFromEmail(profile.email) : "RH");
   const profileInitials = getInitialsFromText(profileName || profile?.email || "RH");
 
   const resetCreateForm = () => {
@@ -525,6 +563,62 @@ export default function DashboardPage() {
       cpf: "",
       dataNascimento: "",
     });
+  };
+
+  const handleReviewRegistration = async (
+    requestId: number,
+    action: "aprovar" | "recusar",
+  ) => {
+    setCreateError("");
+    setCreateSuccess("");
+    setReviewingRequestId(requestId);
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        handleUnauthorized();
+        return;
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/usuarios/solicitacoes-cadastro/${requestId}/${action}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: action === "recusar" ? JSON.stringify({ motivoRecusa: "Recusado pelo RH." }) : undefined,
+        },
+      );
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      if (!response.ok) {
+        setCreateError(await getApiErrorMessage(response, "Não foi possível avaliar a solicitação."));
+        return;
+      }
+
+      const updated = (await response.json()) as RegistrationRequest;
+      setRegistrationRequests((current) =>
+        current.map((request) => request.idSolicitacao === requestId ? updated : request),
+      );
+      setCreateSuccess(
+        action === "aprovar"
+          ? "Solicitação aprovada. As credenciais foram enviadas por e-mail."
+          : "Solicitação recusada.",
+      );
+      if (action === "aprovar") {
+        void loadDashboardData(token);
+      }
+    } catch {
+      setCreateError("Erro ao conectar com a API. Tente novamente.");
+    } finally {
+      setReviewingRequestId(null);
+    }
   };
 
   const handleCreateCollaborator = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -713,6 +807,7 @@ export default function DashboardPage() {
 
         <div className="mt-5 flex flex-wrap items-center gap-2">
           {[
+            { key: "solicitacoes", label: "Solicitações" },
             { key: "colaboradores", label: "Colaboradores" },
             { key: "documentos", label: "Documentos" },
             { key: "auditoria", label: "Auditoria" },
@@ -742,14 +837,22 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-5 border-b border-zinc-100 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-zinc-900">
-                {tab === "colaboradores" ? "Colaboradores" : tab === "documentos" ? "Documentos" : "Auditoria"}
+                {tab === "solicitacoes"
+                  ? "Solicitações de cadastro"
+                  : tab === "colaboradores"
+                    ? "Colaboradores"
+                    : tab === "documentos"
+                      ? "Documentos"
+                      : "Auditoria"}
               </h2>
               <p className="text-sm text-zinc-500">
-                {tab === "colaboradores"
-                  ? "Gerencie o processo de admissão"
-                  : tab === "documentos"
-                    ? "Acompanhe envios, pendências e aprovações"
-                    : "Veja as últimas ações do sistema"}
+                {tab === "solicitacoes"
+                  ? "Aprove ou recuse os pedidos enviados pelo cadastro público"
+                  : tab === "colaboradores"
+                    ? "Gerencie o processo de admissão"
+                    : tab === "documentos"
+                      ? "Acompanhe envios, pendências e aprovações"
+                      : "Veja as últimas ações do sistema"}
               </p>
             </div>
 
@@ -769,6 +872,73 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
+
+          {tab === "solicitacoes" && (
+            <div className="p-5">
+              {requestsLoading ? (
+                <EmptyState title="Carregando solicitações..." description="Buscando os pedidos de cadastro na API." />
+              ) : requestsError ? (
+                <SectionError message={requestsError} />
+              ) : registrationRequests.length === 0 ? (
+                <EmptyState title="Nenhuma solicitação" description="Ainda não há pedidos de cadastro para avaliar." />
+              ) : (
+                <div className="overflow-x-auto rounded-3xl border border-zinc-100">
+                  <table className="min-w-full text-left text-sm">
+                    <thead className="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
+                      <tr>
+                        <th className="px-4 py-3 font-medium">Candidato</th>
+                        <th className="px-4 py-3 font-medium">CPF</th>
+                        <th className="px-4 py-3 font-medium">Data</th>
+                        <th className="px-4 py-3 font-medium">Status</th>
+                        <th className="px-4 py-3 text-right font-medium">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-100 bg-white">
+                      {registrationRequests.map((request) => (
+                        <tr key={request.idSolicitacao} className="hover:bg-zinc-50/80">
+                          <td className="px-4 py-4">
+                            <p className="font-medium text-zinc-900">{request.nome}</p>
+                            <p className="text-zinc-500">{request.email}</p>
+                          </td>
+                          <td className="px-4 py-4 text-zinc-700">{request.cpf}</td>
+                          <td className="px-4 py-4 text-zinc-700">{formatDateTime(request.criadoEm)}</td>
+                          <td className="px-4 py-4">
+                            <span className="inline-flex rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium capitalize text-zinc-700">
+                              {request.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-right">
+                            {request.status === "pendente" ? (
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  type="button"
+                                  disabled={reviewingRequestId === request.idSolicitacao}
+                                  onClick={() => void handleReviewRegistration(request.idSolicitacao, "recusar")}
+                                  className="rounded-full border border-red-200 px-3 py-2 font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                                >
+                                  Recusar
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={reviewingRequestId === request.idSolicitacao}
+                                  onClick={() => void handleReviewRegistration(request.idSolicitacao, "aprovar")}
+                                  className="rounded-full bg-blue-600 px-3 py-2 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+                                >
+                                  {reviewingRequestId === request.idSolicitacao ? "Processando..." : "Aprovar"}
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-zinc-400">Avaliada</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
 
           {tab === "colaboradores" && (
             <div className="p-5">

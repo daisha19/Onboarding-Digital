@@ -7,8 +7,8 @@ from app.core.security import create_access_token
 from app.db.session import get_db
 from app.models import Usuario
 from app.schemas.auth import LoginRequest, TokenResponse
-from app.schemas.user import UsuarioMe
-from app.services.user_service import authenticate_user
+from app.schemas.user import SolicitacaoCadastroCreate, SolicitacaoCadastroResponse, UsuarioMe
+from app.services.user_service import authenticate_user, create_registration_request
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -25,10 +25,16 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     )
 
 
+@router.post("/register-request", response_model=SolicitacaoCadastroResponse, status_code=201)
+def request_registration(payload: SolicitacaoCadastroCreate, db: Session = Depends(get_db)):
+    return create_registration_request(db, payload)
+
+
 @router.get("/me", response_model=UsuarioMe)
 def read_me(current_user: Usuario = Depends(get_current_user)):
     return UsuarioMe(
         idUsuario=current_user.idUsuario,
+        nome=current_user.nome,
         email=current_user.email,
         perfil=get_user_role(current_user),
     )

@@ -99,9 +99,9 @@ docker compose ps
 
 A API ficará disponível em:
 
-- `http://localhost:8000`
-- `http://localhost:8000/docs`
-- `http://localhost:8000/health`
+- `http://localhost:8001`
+- `http://localhost:8001/docs`
+- `http://localhost:8001/health`
 
 Para parar os serviços:
 

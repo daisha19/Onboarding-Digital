@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     GCS_BUCKET_NAME: str = ""
     GCS_UPLOAD_PREFIX: str = "documentos"
     LOCAL_UPLOAD_DIR: str = "uploads"
+    SMTP_HOST: str | None = None
+    SMTP_PORT: int = 587
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    SMTP_USE_TLS: bool = True
+    EMAIL_FROM: str | None = None
 
     @property
     def cors_origins(self) -> list[str]:

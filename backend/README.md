@@ -125,10 +125,10 @@ Antes de subir os containers, edite o `.env` e troque os valores marcados como `
 
 A API ficará disponível em:
 
-- `http://localhost:8000`
-- `http://localhost:8000/docs`
-- `http://localhost:8000/redoc`
-- `http://localhost:8000/health`
+- `http://localhost:8001`
+- `http://localhost:8001/docs`
+- `http://localhost:8001/redoc`
+- `http://localhost:8001/health`
 
 ## Autenticação Inicial
 
@@ -148,8 +148,14 @@ Rotas iniciais:
 
 - `POST /auth/login`
 - `GET /auth/me`
+- `POST /auth/register-request`
 - `POST /usuarios/colaboradores`
 - `POST /usuarios/rh`
+- `GET /usuarios/solicitacoes-cadastro`
+- `POST /usuarios/solicitacoes-cadastro/{id}/aprovar`
+- `POST /usuarios/solicitacoes-cadastro/{id}/recusar`
+
+O cadastro publico cria uma solicitacao pendente. Apenas usuarios de RH podem aprovar ou recusar. Quando o RH aprova, o backend cria o colaborador, gera uma senha inicial e envia as credenciais por SMTP. Se o envio falhar ou o SMTP nao estiver configurado, a operacao e desfeita e a solicitacao continua pendente; credenciais nunca sao registradas nos logs.
 
 Também é possível executar a API diretamente na máquina para desenvolvimento local:
 
@@ -163,8 +169,8 @@ uvicorn app.main:app --reload
 
 Ao executar diretamente na máquina, ajuste o `DATABASE_URL` conforme o host do banco utilizado. A documentação automática do FastAPI ficará disponível em:
 
-- `http://localhost:8000/docs`
-- `http://localhost:8000/redoc`
+- `http://localhost:8001/docs`
+- `http://localhost:8001/redoc`
 
 ## Testes
 
