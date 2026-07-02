@@ -155,7 +155,7 @@ Rotas iniciais:
 - `POST /usuarios/solicitacoes-cadastro/{id}/aprovar`
 - `POST /usuarios/solicitacoes-cadastro/{id}/recusar`
 
-O cadastro publico cria uma solicitacao pendente. Apenas usuarios de RH podem aprovar ou recusar. Quando o RH aprova, o backend cria o colaborador, gera uma senha temporaria e envia as credenciais por SMTP. Se SMTP nao estiver configurado, o email e registrado no log do backend para desenvolvimento local.
+O cadastro publico cria uma solicitacao pendente. Apenas usuarios de RH podem aprovar ou recusar. Quando o RH aprova, o backend cria o colaborador, gera uma senha inicial e envia as credenciais por SMTP. Se o envio falhar ou o SMTP nao estiver configurado, a operacao e desfeita e a solicitacao continua pendente; credenciais nunca sao registradas nos logs.
 
 Também é possível executar a API diretamente na máquina para desenvolvimento local:
 

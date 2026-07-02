@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.security import get_password_hash, verify_password
 from app.models import Colaborador, RH, SolicitacaoCadastroColaborador, Usuario
 from app.schemas.user import ColaboradorCreate, PromoverColaboradorRH, RHCreate, SolicitacaoCadastroCreate
-from app.services.email_service import send_email
+from app.services.email_service import EmailDeliveryError, send_email
 
 
 def get_user_by_email(db: Session, email: str) -> Usuario | None:
@@ -130,20 +130,27 @@ def approve_registration_request(
     request.status = "aprovado"
     request.avaliadoEm = datetime.utcnow()
     request.avaliadoPorRhId = rh_user.idUsuario
+    try:
+        send_email(
+            to_email=request.email,
+            subject="Seu cadastro no OnBoarding Digital foi aprovado",
+            body=(
+                f"Ola, {request.nome}.\n\n"
+                "Seu cadastro no OnBoarding Digital foi aprovado pelo RH.\n\n"
+                f"Login: {request.email}\n"
+                f"Senha inicial: {temporary_password}\n\n"
+                "Use essas credenciais para acessar a plataforma."
+            ),
+        )
+    except EmailDeliveryError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Nao foi possivel enviar as credenciais. A solicitacao continua pendente.",
+        ) from exc
+
     db.commit()
     db.refresh(request)
-
-    send_email(
-        to_email=request.email,
-        subject="Seu cadastro no OnBoarding Digital foi aprovado",
-        body=(
-            f"Ola, {request.nome}.\n\n"
-            "Seu cadastro no OnBoarding Digital foi aprovado pelo RH.\n\n"
-            f"Login: {request.email}\n"
-            f"Senha temporaria: {temporary_password}\n\n"
-            "Acesse a plataforma e altere sua senha assim que possivel."
-        ),
-    )
     return request
 
 
@@ -163,18 +170,25 @@ def reject_registration_request(
     request.motivoRecusa = motivo_recusa
     request.avaliadoEm = datetime.utcnow()
     request.avaliadoPorRhId = rh_user.idUsuario
-    db.commit()
-    db.refresh(request)
-
     body = "Ola,\n\nSua solicitacao de cadastro no OnBoarding Digital foi recusada pelo RH."
     if motivo_recusa:
         body = f"{body}\n\nMotivo: {motivo_recusa}"
 
-    send_email(
-        to_email=request.email,
-        subject="Sua solicitacao de cadastro foi recusada",
-        body=body,
-    )
+    try:
+        send_email(
+            to_email=request.email,
+            subject="Sua solicitacao de cadastro foi recusada",
+            body=body,
+        )
+    except EmailDeliveryError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Nao foi possivel enviar a notificacao. A solicitacao continua pendente.",
+        ) from exc
+
+    db.commit()
+    db.refresh(request)
     return request
 
 
