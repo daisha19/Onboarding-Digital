@@ -91,7 +91,7 @@ def update_document_status(
 
     log = LogAuditoria(
         descricao=f"Status do documento alterado de {status_anterior} para {nome_status}.",
-        dataHora=datetime.utcnow(),
+        dataHora=datetime.now(timezone.utc),
         idUsuario=id_usuario_rh,
         idDoc=documento.idDoc,
         nomeAcao="alterar_status_documento",
