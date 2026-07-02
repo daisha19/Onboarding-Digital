@@ -12,6 +12,9 @@ def test_documentos_routes_registered_in_openapi():
     assert "get" in paths["/documentos/"]
     assert "post" in paths["/documentos/"]
 
+    assert "/documentos/tipos" in paths
+    assert "get" in paths["/documentos/tipos"]
+
     assert "/documentos/{id_doc}" in paths
     assert "get" in paths["/documentos/{id_doc}"]
     assert "delete" in paths["/documentos/{id_doc}"]
@@ -36,7 +39,7 @@ def test_documentos_routes_require_authentication():
 
     response = client.post(
         "/documentos/",
-        data={"nome_doc": "rg"},
+        data={"nomeDoc": "rg"},
         files={"arquivo": ("doc.txt", b"conteudo", "text/plain")},
     )
 

@@ -11,9 +11,13 @@ from fastapi import (
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
-from app.models.document import Documento
+from app.models.document import Documento, TipoDocumento
 from app.models.user import Usuario
-from app.schemas.document import DocumentoResponse, DocumentoStatusUpdate
+from app.schemas.document import (
+    DocumentoResponse,
+    DocumentoStatusUpdate,
+    TipoDocumentoResponse,
+)
 from app.services.document_service import (
     create_document,
     delete_document,
@@ -33,6 +37,14 @@ router = APIRouter(
     prefix="/documentos",
     tags=["documentos"],
 )
+
+
+@router.get("/tipos", response_model=list[TipoDocumentoResponse])
+def list_document_types(
+    db: Session = Depends(get_db),
+    _current_user: Usuario = Depends(get_current_user),
+):
+    return db.query(TipoDocumento).all()
 
 
 def _get_allowed_document(
@@ -129,7 +141,7 @@ def remove_document(
 @router.post("/", response_model=DocumentoResponse)
 async def upload_document(
     arquivo: UploadFile = File(...),
-    nome_doc: str = Form(...),
+    nome_doc: str = Form(..., alias="nomeDoc"),
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user),
 ):
@@ -143,6 +155,15 @@ async def upload_document(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Apenas colaboradores podem enviar documentos.",
+        )
+
+    if db.get(TipoDocumento, nome_doc) is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "code": "INVALID_DOCUMENT_TYPE",
+                "message": f"Tipo de documento '{nome_doc}' nao encontrado.",
+            },
         )
 
     contents = await arquivo.read()
@@ -163,7 +184,6 @@ async def upload_document(
     )
 
     return documento
-
 
 
 @router.patch("/{id_doc}/status", response_model=DocumentoResponse)
