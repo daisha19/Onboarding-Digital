@@ -19,7 +19,7 @@ def test_documentos_routes_registered_in_openapi():
     assert "/documentos/{id_doc}/download" in paths
     assert "get" in paths["/documentos/{id_doc}/download"]
     assert "/documentos/{id_doc}/status" in paths
-assert "patch" in paths["/documentos/{id_doc}/status"]
+    assert "patch" in paths["/documentos/{id_doc}/status"]
 
 
 def test_swagger_uses_bearer_authentication():
