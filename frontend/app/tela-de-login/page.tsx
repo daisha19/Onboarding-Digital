@@ -1,8 +1,12 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -19,8 +23,6 @@ export default function LoginPage() {
     return Object.keys(e).length === 0;
   };
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setAuthError("");
@@ -29,7 +31,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       // 1. Faz o Login para obter o Token
-      const loginRes = await fetch(`${API_URL}/auth/login`, {
+      const loginRes = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, senha: password }),
@@ -51,7 +53,7 @@ export default function LoginPage() {
       localStorage.setItem("accessToken", token);
 
       // 2. Bate no endpoint /auth/me usando o token obtido para saber QUEM é o usuário
-      const meRes = await fetch(`${API_URL}/auth/me`, {
+      const meRes = await fetch(`${API_BASE_URL}/auth/me`, {
         method: "GET",
         headers: { 
           "Authorization": `Bearer ${token}`,
@@ -60,6 +62,7 @@ export default function LoginPage() {
       });
 
       if (!meRes.ok) {
+        localStorage.removeItem("accessToken");
         setAuthError("Erro ao carregar perfil do usuário.");
         return;
       }
@@ -72,12 +75,15 @@ export default function LoginPage() {
 
       // 3. Redirecionamento baseado nos nomes REAIS das suas pastas:
       if (perfilUsuario === "rh") {
-        window.location.href = "/RH_dashboard";
+        router.replace("/RH_dashboard");
+      } else if (perfilUsuario === "colaborador") {
+        router.replace("/colaborador_dashboard");
       } else {
-        window.location.href = "/colaborador_dashboard";
+        localStorage.removeItem("accessToken");
+        setAuthError("Perfil de usuário inválido.");
       }
 
-    } catch (err) {
+    } catch {
       setAuthError("Erro de conexão com o servidor. Verifique se o backend está rodando.");
     } finally {
       setLoading(false);
@@ -171,8 +177,8 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between text-sm text-zinc-500 gap-3">
-          <Link href="#" className="text-blue-600">Esqueci minha senha</Link>
-          <Link href="#" className="text-zinc-600">Criar conta</Link>
+          <span className="text-zinc-400">Recuperação de senha indisponível</span>
+          <Link href="/cadastro" className="text-zinc-600">Criar conta</Link>
         </div>
       </div>
     </div>

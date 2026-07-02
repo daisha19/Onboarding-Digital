@@ -54,70 +54,10 @@
     dataNascimento: string;
   };
 
-  // Collaborators are loaded from the backend (GET /usuarios/rh)
   const initialCollaborators: CollaboratorRow[] = [];
 
-  const initialDocuments: DocumentRow[] = [
-    {
-      id: 1,
-      title: "Documento de identidade",
-      collaborator: "João Santos",
-      status: "Aprovado",
-      submittedAt: "06 jun, 09:18",
-      note: "Imagem legível e validada pela equipe de RH.",
-    },
-    {
-      id: 2,
-      title: "Comprovante de residência",
-      collaborator: "Ana Costa",
-      status: "Pendente",
-      submittedAt: "06 jun, 11:42",
-      note: "Aguardando envio do arquivo atualizado.",
-    },
-    {
-      id: 3,
-      title: "Exame admissional",
-      collaborator: "Carlos Silva",
-      status: "Em análise",
-      submittedAt: "05 jun, 16:05",
-      note: "Documento encaminhado ao time de saúde ocupacional.",
-    },
-    {
-      id: 4,
-      title: "Termo de confidencialidade",
-      collaborator: "Mariana Oliveira",
-      status: "Pendente",
-      submittedAt: "04 jun, 14:30",
-      note: "Assinatura eletrônica ainda não concluída.",
-    },
-  ];
-
-  const initialAudit: AuditRow[] = [
-    {
-      id: 1,
-      time: "09:12",
-      title: "João Santos enviou o comprovante bancário",
-      description: "Arquivo recebido e marcado para revisão automática.",
-    },
-    {
-      id: 2,
-      time: "10:03",
-      title: "Ana Costa foi notificada",
-      description: "E-mail com pendência de documentos enviado com sucesso.",
-    },
-    {
-      id: 3,
-      time: "11:26",
-      title: "Carlos Silva aprovado",
-      description: "Fluxo finalizado após validação de RH.",
-    },
-    {
-      id: 4,
-      time: "12:18",
-      title: "Nova sessão autenticada",
-      description: "Perfil RH carregado com token válido.",
-    },
-  ];
+  const initialDocuments: DocumentRow[] = [];
+  const initialAudit: AuditRow[] = [];
 
   const collaboratorStatusStyles: Record<CollaboratorStatus, string> = {
     Pendente: "bg-indigo-600 text-white",
@@ -185,7 +125,7 @@
     useEffect(() => {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-      router.replace("/tela-de-login");
+        router.replace("/tela-de-login");
         return;
       }
 
@@ -204,48 +144,11 @@
           }
 
           const data = (await response.json()) as UserProfile;
-          setProfile(data);
-
-          // Após carregar o perfil, buscar os usuários RH do backend e popular a tabela
-          try {
-            const respRH = await fetch(`${API_BASE_URL}/usuarios/rh`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-
-            if (respRH.ok) {
-              const rhs = (await respRH.json()) as Array<{
-                matricula: number;
-                cargo: string;
-                idUsuario: number;
-                email: string;
-              }>;
-
-              const mapped = rhs.map((r) => ({
-                id: r.idUsuario,
-                name: getDisplayNameFromEmail(r.email),
-                email: r.email,
-                role: r.cargo ?? "RH",
-                department: "RH",
-                progress: 0,
-                steps: 8,
-                status: "Pendente" as CollaboratorStatus,
-                initials: getInitialsFromText(getDisplayNameFromEmail(r.email)),
-                phone: "Não informado",
-                lastUpdate: "agora",
-                documents: [] as string[],
-              } as CollaboratorRow));
-
-              setCollaborators(mapped);
-              setSelectedCollaboratorId(mapped[0]?.id ?? null);
-            } else {
-              setCollaborators([]);
-              setSelectedCollaboratorId(null);
-            }
-          } catch {
-            setError("Não foi possível carregar os usuários RH.");
+          if (data.perfil.toLowerCase() !== "rh") {
+            router.replace("/colaborador_dashboard");
+            return;
           }
+          setProfile(data);
         } catch {
           setError("Não foi possível carregar o usuário autenticado.");
         } finally {
@@ -254,10 +157,10 @@
       };
 
       void loadProfile();
-    }, []);
+    }, [router]);
 
     const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+      localStorage.removeItem("accessToken");
       router.replace("/tela-de-login");
     };
 
@@ -281,7 +184,7 @@
     const approvedCollaborators = collaborators.filter((item) => item.status === "Aprovado").length;
     const pendingDocuments = documents.filter((item) => item.status === "Pendente").length;
 
-    const profileName = profile?.email ? getDisplayNameFromEmail(profile.email) : "Maria Silva";
+    const profileName = profile?.email ? getDisplayNameFromEmail(profile.email) : "RH";
     const profileInitials = getInitialsFromText(profileName || profile?.email || "RH");
 
     const resetCreateForm = () => {
@@ -324,12 +227,26 @@
         const data = (await response.json()) as {
           idUsuario: number;
           email: string;
+          cpf: string;
         };
 
         const displayName = getDisplayNameFromEmail(data.email);
-        // O backend criou o colaborador no banco, porém a tabela exibida aqui
-        // mostra apenas usuários com RH no banco — portanto não inserimos
-        // o colaborador recém-criado na lista atual.
+        const createdCollaborator: CollaboratorRow = {
+          id: data.idUsuario,
+          name: displayName,
+          email: data.email,
+          role: "Colaborador",
+          department: "Não informado",
+          progress: 0,
+          steps: 8,
+          status: "Pendente",
+          initials: getInitialsFromText(displayName),
+          phone: "Não informado",
+          lastUpdate: "agora",
+          documents: [],
+        };
+        setCollaborators((current) => [...current, createdCollaborator]);
+        setSelectedCollaboratorId(createdCollaborator.id);
         setIsCreateOpen(false);
         resetCreateForm();
         setCreateSuccess("Colaborador cadastrado com sucesso.");
@@ -630,7 +547,9 @@
 
             {tab === "documentos" && (
               <div className="grid gap-4 p-5 lg:grid-cols-2">
-                {documents.map((item) => (
+                {documents.length === 0 ? (
+                  <p className="text-sm text-zinc-500">Nenhum documento disponível no momento.</p>
+                ) : documents.map((item) => (
                   <article key={item.id} className="rounded-3xl border border-zinc-100 bg-zinc-50/70 p-5">
                     <div className="flex items-start justify-between gap-4">
                       <div>
@@ -660,7 +579,9 @@
 
             {tab === "auditoria" && (
               <div className="space-y-4 p-5">
-                {audit.map((item) => (
+                {audit.length === 0 ? (
+                  <p className="text-sm text-zinc-500">Nenhum registro de auditoria disponível no momento.</p>
+                ) : audit.map((item) => (
                   <article key={item.id} className="flex gap-4 rounded-3xl border border-zinc-100 bg-zinc-50/70 p-5">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-sm font-semibold text-blue-600 shadow-sm">
                       {item.time}
@@ -717,14 +638,13 @@
                   Abrir cadastro de colaborador
                   <span className="text-blue-600">+</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setTab("documentos")}
+                <Link
+                  href="/RH_documento"
                   className="flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-left text-sm font-medium text-zinc-700 transition hover:border-blue-200 hover:bg-blue-50"
                 >
-                  Ir para documentos
+                  Abrir documentos enviados
                   <span className="text-blue-600">→</span>
-                </button>
+                </Link>
                 <button
                   type="button"
                   onClick={() => setTab("auditoria")}

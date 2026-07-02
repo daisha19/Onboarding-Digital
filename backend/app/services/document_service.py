@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -15,6 +15,10 @@ def get_documents_by_user(db: Session, id_usuario: int) -> list[Documento]:
     return db.query(Documento).filter(Documento.idUsuario == id_usuario).all()
 
 
+def get_document_by_id(db: Session, id_doc: int) -> Documento | None:
+    return db.get(Documento, id_doc)
+
+
 def create_document(
     db: Session,
     *,
@@ -29,19 +33,24 @@ def create_document(
     if tipo_documento is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Tipo de documento inválido: {nome_doc}",
+            detail={
+                "code": "INVALID_DOCUMENT_TYPE",
+                "message": f"Tipo de documento '{nome_doc}' nao encontrado.",
+            },
         )
 
     status_documento = db.get(StatusDocumento, nome_status)
     if status_documento is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Status de documento inválido: {nome_status}",
+        status_documento = StatusDocumento(
+            nomeStatus=nome_status,
+            descricao="Documento pendente de analise",
         )
+        db.add(status_documento)
+        db.flush()
 
     documento = Documento(
         caminhoArquivo=caminho_arquivo,
-        dataEnvio=datetime.utcnow(),
+        dataEnvio=datetime.now(timezone.utc),
         nomeArquivo=nome_arquivo,
         cpf=cpf,
         idUsuario=id_usuario,
@@ -93,3 +102,8 @@ def update_document_status(
     db.refresh(documento)
 
     return documento
+
+
+def delete_document(db: Session, documento: Documento) -> None:
+    db.delete(documento)
+    db.commit()
