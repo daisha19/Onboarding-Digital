@@ -20,15 +20,28 @@ def upgrade() -> None:
     op.execute("""
         INSERT INTO status_documento ("nomeStatus", descricao)
         VALUES
-        ('EM_ANALISE', 'Documento em análise'),
-        ('APROVADO', 'Documento aprovado'),
-        ('REJEITADO', 'Documento rejeitado')
+        ('pendente', 'Documento aguardando análise'),
+        ('em_analise', 'Documento em análise'),
+        ('aprovado', 'Documento aprovado'),
+        ('rejeitado', 'Documento rejeitado')
         ON CONFLICT ("nomeStatus") DO NOTHING;
+    """)
+
+    op.execute("""
+        INSERT INTO acao_auditoria ("nomeAcao", descricao)
+        VALUES
+        ('alterar_status_documento', 'Alteração de status de documento')
+        ON CONFLICT ("nomeAcao") DO NOTHING;
     """)
 
 
 def downgrade() -> None:
     op.execute("""
+        DELETE FROM acao_auditoria
+        WHERE "nomeAcao" = 'alterar_status_documento';
+    """)
+
+    op.execute("""
         DELETE FROM status_documento
-        WHERE "nomeStatus" IN ('EM_ANALISE', 'APROVADO', 'REJEITADO');
+        WHERE "nomeStatus" IN ('pendente', 'em_analise', 'aprovado', 'rejeitado');
     """)

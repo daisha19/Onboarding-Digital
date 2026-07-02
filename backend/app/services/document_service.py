@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.models.audit import LogAuditoria
 from app.models.document import Documento, StatusDocumento, TipoDocumento
 
 
@@ -22,7 +23,7 @@ def create_document(
     cpf: str,
     id_usuario: int,
     nome_doc: str,
-    nome_status: str = "PENDENTE",
+    nome_status: str = "pendente",
 ) -> Documento:
     tipo_documento = db.get(TipoDocumento, nome_doc)
     if tipo_documento is None:
@@ -60,6 +61,7 @@ def update_document_status(
     *,
     id_doc: int,
     nome_status: str,
+    id_usuario_rh: int,
 ) -> Documento:
     documento = db.get(Documento, id_doc)
     if documento is None:
@@ -75,8 +77,18 @@ def update_document_status(
             detail=f"Status de documento inválido: {nome_status}",
         )
 
+    status_anterior = documento.nomeStatus
     documento.nomeStatus = nome_status
 
+    log = LogAuditoria(
+        descricao=f"Status do documento alterado de {status_anterior} para {nome_status}.",
+        dataHora=datetime.utcnow(),
+        idUsuario=id_usuario_rh,
+        idDoc=documento.idDoc,
+        nomeAcao="alterar_status_documento",
+    )
+
+    db.add(log)
     db.commit()
     db.refresh(documento)
 

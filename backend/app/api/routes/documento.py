@@ -70,7 +70,7 @@ async def upload_document(
         cpf=current_user.colaborador.cpf,
         id_usuario=current_user.idUsuario,
         nome_doc=nome_doc,
-        nome_status="PENDENTE",
+        nome_status="pendente",
     )
 
     return documento
@@ -93,4 +93,5 @@ def update_status_document(
         db=db,
         id_doc=id_doc,
         nome_status=status_update.nomeStatus,
-    )   
+        id_usuario_rh=current_user.idUsuario,
+    )
