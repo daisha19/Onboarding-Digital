@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
-from app.api.routes import auditoria, auth, documento, documentos, health, usuarios
+from app.api.routes import auditoria, auth, documento, health, usuarios
 from app.core.config import settings
 
 
@@ -59,7 +59,6 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(usuarios.router)
     app.include_router(auditoria.router)
-    app.include_router(documentos.router)
     app.include_router(documento.router)
 
     configure_openapi(app)

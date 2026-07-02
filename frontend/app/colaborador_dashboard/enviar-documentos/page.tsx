@@ -154,7 +154,7 @@ export default function EnviarDocumentos() {
         formData.append("nomeDoc", selectedTipo);
         formData.append("arquivo", file);
 
-        const response = await fetch(`${API_BASE_URL}/documentos/upload`, {
+        const response = await fetch(`${API_BASE_URL}/documentos/`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

@@ -8,7 +8,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8
 
 type DashboardTab = "colaboradores" | "documentos" | "auditoria";
 type CollaboratorStatus = "Pendente" | "Em Análise" | "Aprovado";
-type DocumentStatus = "Pendente" | "Em análise" | "Aprovado";
+type DocumentStatus = "Pendente" | "Em análise" | "Aprovado" | "Rejeitado";
 
 type UserProfile = {
   idUsuario: number;
@@ -94,6 +94,7 @@ const documentStatusStyles: Record<DocumentStatus, string> = {
   Pendente: "bg-amber-100 text-amber-700 ring-1 ring-amber-200",
   "Em análise": "bg-blue-100 text-blue-700 ring-1 ring-blue-200",
   Aprovado: "bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200",
+  Rejeitado: "bg-red-100 text-red-700 ring-1 ring-red-200",
 };
 
 function getInitialsFromText(value: string) {
@@ -137,6 +138,10 @@ function normalizeDocumentStatus(value: string): DocumentStatus {
 
   if (normalized.includes("analise") || normalized.includes("revis")) {
     return "Em análise";
+  }
+
+  if (normalized.includes("rejeit") || normalized.includes("recus")) {
+    return "Rejeitado";
   }
 
   return "Pendente";
