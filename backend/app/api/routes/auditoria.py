@@ -1,43 +1,35 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.models import Documento, Usuario
-from app.db.session import get_db
-from app.api.deps import get_current_user, require_rh
 
-router = APIRouter(prefix="/listagem", tags=["listagem"])
+from app.api.deps import require_rh
+from app.db.session import get_db
+from app.models import LogAuditoria, Usuario
+
+router = APIRouter(
+    prefix="/auditoria",
+    tags=["auditoria"],
+)
+
 
 @router.get("/")
-def listar_documentos(
+def listar_logs(
     db: Session = Depends(get_db),
-    user = Depends(get_current_user),
+    _: Usuario = Depends(require_rh),
 ):
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="Token de autenticação inválido"
-        )
+    logs = (
+        db.query(LogAuditoria)
+        .order_by(LogAuditoria.dataHora.desc())
+        .all()
+    )
 
-    if user.role == "colaborador":
-        documentos = db.query(Documento).filter(Documento.idUsuario == user.id).all()
-    elif user.role == "RH":
-        documentos = db.query(Documento).all()
-    else:
-        raise HTTPException(status_code=403, detail="Acesso não autorizado")
-
-    if user.role != "RH":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Acesso não autorizado"
-        )
-    
     return [
         {
-            "id": doc.idDoc,
-            "nome": doc.nomeArquivo,
-            "tipo": doc.nomeDoc,
-            "status": doc.nomeStatus,
-            "data_envio": doc.dataEnvio,
-            "usuario_id": doc.idUsuario
+            "idAuditoria": log.idAuditoria,
+            "descricao": log.descricao,
+            "dataHora": log.dataHora,
+            "idUsuario": log.idUsuario,
+            "idDocumento": log.idDoc,
+            "nomeAcao": log.nomeAcao,
         }
-        for doc in documentos
+        for log in logs
     ]

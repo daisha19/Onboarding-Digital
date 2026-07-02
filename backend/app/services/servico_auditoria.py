@@ -1,23 +1,28 @@
 from datetime import datetime
+
 from sqlalchemy.orm import Session
 
-from app.models.log_auditoria import LogAuditoria
+from app.models.audit import LogAuditoria
 
 
 def registrar_log(
     db: Session,
-    usuario_id: int,
-    acao: str,
+    id_usuario: int,
+    id_documento: int,
+    nome_acao: str,
     descricao: str,
-    documento_id: int | None = None,
-):
+) -> LogAuditoria:
+
     log = LogAuditoria(
-        idUsuario=usuario_id,
-        acaoAuditoria=acao,
+        dataHora=datetime.now(),
         descricao=descricao,
-        idDoc=documento_id,
-        dataHora=datetime.now()
+        idUsuario=id_usuario,
+        idDoc=id_documento,
+        nomeAcao=nome_acao,
     )
 
     db.add(log)
     db.commit()
+    db.refresh(log)
+
+    return log
