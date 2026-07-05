@@ -10,5 +10,5 @@ class AuditLogResponse(BaseModel):
     descricao: str
     dataHora: datetime
     idUsuario: int
-    idDoc: int
+    idDoc: int | None
     nomeAcao: str
