@@ -275,8 +275,8 @@ export default function ColaboradorDashboard() {
               </Link>
 
               {/* Card 3: Meu Perfil */}
-              <div className="rounded-[1.25rem] border border-white/80 bg-white/70 p-5 opacity-70 shadow-[0_8px_25px_rgba(15,23,42,0.04)]">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+              <Link href="/colaborador_perfil" className="group rounded-[1.25rem] border border-white/80 bg-white/90 p-5 shadow-[0_8px_25px_rgba(15,23,42,0.04)] transition hover:scale-[1.01] hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition group-hover:bg-blue-600 group-hover:text-white">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
@@ -284,7 +284,7 @@ export default function ColaboradorDashboard() {
                 </div>
                 <h4 className="mt-4 font-semibold text-zinc-900 text-sm">Meu Perfil</h4>
                 <p className="text-xs text-zinc-500 mt-0.5">Gerencie suas informações pessoais</p>
-              </div>
+              </Link>
 
               {/* Card 4: Suporte */}
               <div className="rounded-[1.25rem] border border-white/80 bg-white/70 p-5 opacity-70 shadow-[0_8px_25px_rgba(15,23,42,0.04)]">

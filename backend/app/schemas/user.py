@@ -78,3 +78,11 @@ class RHResponse(BaseModel):
     idUsuario: int
     nome: str
     email: EmailStr
+
+
+class ColaboradorPerfilResponse(BaseModel):
+    idUsuario: int
+    nome: str
+    email: EmailStr
+    cpf: str
+    dataNascimento: date

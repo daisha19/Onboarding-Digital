@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.deps import require_rh
+from app.api.deps import get_current_user, require_rh
 from app.db.session import get_db
 from app.models import Usuario
 from app.schemas.user import (
     ColaboradorCreate,
+    ColaboradorPerfilResponse,
     ColaboradorResponse,
     PromoverColaboradorRH,
     RHCreate,
@@ -95,6 +96,20 @@ def create_rh_user(
         idUsuario=rh.idUsuario,
         nome=rh.usuario.nome,
         email=rh.usuario.email,
+    )
+
+
+@router.get("/me/perfil", response_model=ColaboradorPerfilResponse)
+def get_my_profile(current_user: Usuario = Depends(get_current_user)):
+    colaborador = current_user.colaborador
+    if colaborador is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuário não é um colaborador.")
+    return ColaboradorPerfilResponse(
+        idUsuario=current_user.idUsuario,
+        nome=current_user.nome,
+        email=current_user.email,
+        cpf=colaborador.cpf,
+        dataNascimento=colaborador.dataNascimento,
     )
 
 

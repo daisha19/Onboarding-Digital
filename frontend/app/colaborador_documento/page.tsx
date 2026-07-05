@@ -53,6 +53,12 @@ export default function ColaboradorDocumento() {
   const [documentos, setDocumentos] = useState<DocumentoApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [downloadLoading, setDownloadLoading] = useState<number | null>(null);
+
+  function handleUnauthorized() {
+    localStorage.removeItem("accessToken");
+    router.replace("/tela-de-login");
+  }
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -68,8 +74,7 @@ export default function ColaboradorDocumento() {
         });
 
         if (profileResponse.status === 401) {
-          localStorage.removeItem("accessToken");
-          router.replace("/tela-de-login");
+          handleUnauthorized();
           return;
         }
 
@@ -89,8 +94,7 @@ export default function ColaboradorDocumento() {
         });
 
         if (response.status === 401) {
-          localStorage.removeItem("accessToken");
-          router.replace("/tela-de-login");
+          handleUnauthorized();
           return;
         }
 
@@ -109,7 +113,50 @@ export default function ColaboradorDocumento() {
     }
 
     void loadDocuments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
+
+  async function handleVisualizar(idDoc: number, nomeArquivo: string) {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      handleUnauthorized();
+      return;
+    }
+
+    setDownloadLoading(idDoc);
+    try {
+      const response = await fetch(`${API_BASE_URL}/documentos/${idDoc}/download`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      if (response.status === 403) {
+        setError("Você não tem permissão para baixar este documento.");
+        return;
+      }
+
+      if (!response.ok) {
+        alert("Arquivo não disponível no servidor.");
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nomeArquivo;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Erro de conexão ao baixar o documento.");
+    } finally {
+      setDownloadLoading(null);
+    }
+  }
 
   if (loading) {
     return (
@@ -171,9 +218,20 @@ export default function ColaboradorDocumento() {
                   <p className="mt-2 text-xs text-slate-400">Enviado em {formatDate(doc.dataEnvio)}</p>
                 </div>
 
-                <span className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold ${getStatusStyle(doc.nomeStatus)}`}>
-                  {getStatusLabel(doc.nomeStatus)}
-                </span>
+                <div className="flex items-center gap-3 justify-between sm:justify-end">
+                  <span className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold ${getStatusStyle(doc.nomeStatus)}`}>
+                    {getStatusLabel(doc.nomeStatus)}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => handleVisualizar(doc.idDoc, doc.nomeArquivo)}
+                    disabled={downloadLoading === doc.idDoc}
+                    className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {downloadLoading === doc.idDoc ? "Baixando..." : "Visualizar ↗"}
+                  </button>
+                </div>
               </article>
             ))}
           </section>
