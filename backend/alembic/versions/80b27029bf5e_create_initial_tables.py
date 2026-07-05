@@ -94,17 +94,6 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('idAuditoria')
     )
     op.create_index(op.f('ix_log_auditoria_idAuditoria'), 'log_auditoria', ['idAuditoria'], unique=False)
-    
-    op.bulk_insert(
-        op.get_bind(),
-        "acao_auditoria",
-        [
-            {"nomeAcao": "UPLOAD_DOCUMENTO", "descricao": "Upload de documento"},
-            {"nomeAcao": "APROVACAO_DOCUMENTO", "descricao": "Aprovação de documento"},
-            {"nomeAcao": "REJEICAO_DOCUMENTO", "descricao": "Rejeição de documento"},
-            {"nomeAcao": "EM_ANALISE", "descricao": "Documento em análise"},
-        ]
-    )
     # ### end Alembic commands ###
 
 
@@ -122,7 +111,4 @@ def downgrade() -> None:
     op.drop_table('tipo_documento')
     op.drop_table('status_documento')
     op.drop_table('acao_auditoria')
-    op.execute(
-        "DELETE FROM acao_auditoria WHERE nomeAcao IN ('UPLOAD_DOCUMENTO', 'APROVACAO_DOCUMENTO', 'REJEICAO_DOCUMENTO', 'EM_ANALISE')"
-    )
     # ### end Alembic commands ###
