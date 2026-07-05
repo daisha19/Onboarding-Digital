@@ -178,8 +178,13 @@ export default function RHDocumentoAnalise() {
         body: JSON.stringify({ nomeStatus: novoStatus }),
       });
 
-      if (response.status === 401 || response.status === 403) {
+      if (response.status === 401) {
         handleUnauthorized();
+        return;
+      }
+
+      if (response.status === 403) {
+        setFeedback({ idDoc, tipo: "erro", mensagem: "Você não tem permissão para avaliar este documento." });
         return;
       }
 
@@ -196,6 +201,8 @@ export default function RHDocumentoAnalise() {
         tipo: "sucesso",
         mensagem: novoStatus === "aprovado" ? "Documento aprovado com sucesso." : "Documento rejeitado.",
       });
+    } catch {
+      setFeedback({ idDoc, tipo: "erro", mensagem: "Erro de conexão ao atualizar o documento." });
     } finally {
       setActionLoading(null);
     }
@@ -214,8 +221,13 @@ export default function RHDocumentoAnalise() {
         headers: authHeaders(token),
       });
 
-      if (response.status === 401 || response.status === 403) {
+      if (response.status === 401) {
         handleUnauthorized();
+        return;
+      }
+
+      if (response.status === 403) {
+        setFeedback({ idDoc, tipo: "erro", mensagem: "Você não tem permissão para baixar este documento." });
         return;
       }
 
@@ -231,6 +243,8 @@ export default function RHDocumentoAnalise() {
       a.download = nomeArquivo;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setFeedback({ idDoc, tipo: "erro", mensagem: "Erro de conexão ao baixar o documento." });
     } finally {
       setDownloadLoading(null);
     }

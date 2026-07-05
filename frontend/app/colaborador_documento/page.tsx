@@ -129,8 +129,13 @@ export default function ColaboradorDocumento() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.status === 401 || response.status === 403) {
+      if (response.status === 401) {
         handleUnauthorized();
+        return;
+      }
+
+      if (response.status === 403) {
+        setError("Você não tem permissão para baixar este documento.");
         return;
       }
 
@@ -146,6 +151,8 @@ export default function ColaboradorDocumento() {
       a.download = nomeArquivo;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setError("Erro de conexão ao baixar o documento.");
     } finally {
       setDownloadLoading(null);
     }
