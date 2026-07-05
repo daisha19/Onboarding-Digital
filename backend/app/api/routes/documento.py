@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -32,6 +34,8 @@ from app.services.storage import (
     save_upload_file,
 )
 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/documentos",
@@ -173,15 +177,22 @@ async def upload_document(
         cpf=current_user.colaborador.cpf,
     )
 
-    documento = create_document(
-        db=db,
-        caminho_arquivo=stored_file.path,
-        nome_arquivo=stored_file.original_filename,
-        cpf=current_user.colaborador.cpf,
-        id_usuario=current_user.idUsuario,
-        nome_doc=nome_doc,
-        nome_status="pendente",
-    )
+    try:
+        documento = create_document(
+            db=db,
+            caminho_arquivo=stored_file.path,
+            nome_arquivo=stored_file.original_filename,
+            cpf=current_user.colaborador.cpf,
+            id_usuario=current_user.idUsuario,
+            nome_doc=nome_doc,
+            nome_status="pendente",
+        )
+    except Exception:
+        try:
+            delete_stored_file(path=stored_file.path)
+        except Exception:
+            logger.exception("Falha ao remover arquivo após erro na persistência do upload")
+        raise
 
     return documento
 

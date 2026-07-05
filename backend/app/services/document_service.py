@@ -3,8 +3,12 @@ from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.models.audit import LogAuditoria
 from app.models.document import Documento, StatusDocumento, TipoDocumento
+from app.services.audit_service import (
+    DOCUMENT_STATUS_ACTIONS,
+    UPLOAD_DOCUMENT,
+    register_audit_log,
+)
 
 
 def get_all_documents(db: Session) -> list[Documento]:
@@ -58,9 +62,21 @@ def create_document(
         nomeStatus=nome_status,
     )
 
-    db.add(documento)
-    db.commit()
-    db.refresh(documento)
+    try:
+        db.add(documento)
+        db.flush()
+        register_audit_log(
+            db,
+            action=UPLOAD_DOCUMENT,
+            description=f"Documento {documento.nomeArquivo} enviado.",
+            user_id=id_usuario,
+            document_id=documento.idDoc,
+        )
+        db.commit()
+        db.refresh(documento)
+    except Exception:
+        db.rollback()
+        raise
 
     return documento
 
@@ -89,17 +105,20 @@ def update_document_status(
     status_anterior = documento.nomeStatus
     documento.nomeStatus = nome_status
 
-    log = LogAuditoria(
-        descricao=f"Status do documento alterado de {status_anterior} para {nome_status}.",
-        dataHora=datetime.now(timezone.utc),
-        idUsuario=id_usuario_rh,
-        idDoc=documento.idDoc,
-        nomeAcao="alterar_status_documento",
-    )
-
-    db.add(log)
-    db.commit()
-    db.refresh(documento)
+    action = DOCUMENT_STATUS_ACTIONS.get(nome_status, "alterar_status_documento")
+    try:
+        register_audit_log(
+            db,
+            action=action,
+            description=f"Status do documento alterado de {status_anterior} para {nome_status}.",
+            user_id=id_usuario_rh,
+            document_id=documento.idDoc,
+        )
+        db.commit()
+        db.refresh(documento)
+    except Exception:
+        db.rollback()
+        raise
 
     return documento
 

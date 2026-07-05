@@ -55,10 +55,14 @@ def list_colaborador_users(
 def create_colaborador_user(
     payload: ColaboradorCreate,
     db: Session = Depends(get_db),
-    _: Usuario = Depends(require_rh),
+    current_user: Usuario = Depends(require_rh),
 ):
     try:
-        colaborador = create_colaborador(db, payload)
+        colaborador = create_colaborador(
+            db,
+            payload,
+            actor_user_id=current_user.idUsuario,
+        )
     except IntegrityError as exc:
         db.rollback()
         raise HTTPException(

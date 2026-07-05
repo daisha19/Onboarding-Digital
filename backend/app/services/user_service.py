@@ -8,6 +8,7 @@ from app.core.security import get_password_hash, verify_password
 from app.models import Colaborador, RH, SolicitacaoCadastroColaborador, Usuario
 from app.schemas.user import ColaboradorCreate, PromoverColaboradorRH, RHCreate, SolicitacaoCadastroCreate
 from app.services.email_service import EmailDeliveryError, send_email
+from app.services.audit_service import CREATE_COLLABORATOR, register_audit_log
 
 
 def get_user_by_email(db: Session, email: str) -> Usuario | None:
@@ -23,7 +24,12 @@ def authenticate_user(db: Session, email: str, senha: str) -> Usuario | None:
     return usuario
 
 
-def create_colaborador(db: Session, data: ColaboradorCreate) -> Colaborador:
+def create_colaborador(
+    db: Session,
+    data: ColaboradorCreate,
+    *,
+    actor_user_id: int,
+) -> Colaborador:
     usuario = Usuario(
         nome=data.nome,
         email=data.email,
@@ -38,8 +44,18 @@ def create_colaborador(db: Session, data: ColaboradorCreate) -> Colaborador:
         idUsuario=usuario.idUsuario,
     )
     db.add(colaborador)
-    db.commit()
-    db.refresh(colaborador)
+    try:
+        register_audit_log(
+            db,
+            action=CREATE_COLLABORATOR,
+            description=f"Colaborador {data.email} cadastrado pelo RH.",
+            user_id=actor_user_id,
+        )
+        db.commit()
+        db.refresh(colaborador)
+    except Exception:
+        db.rollback()
+        raise
     return colaborador
 
 
@@ -126,6 +142,17 @@ def approve_registration_request(
         idUsuario=usuario.idUsuario,
     )
     db.add(colaborador)
+
+    try:
+        register_audit_log(
+            db,
+            action=CREATE_COLLABORATOR,
+            description=f"Cadastro de {request.email} aprovado pelo RH.",
+            user_id=rh_user.idUsuario,
+        )
+    except Exception:
+        db.rollback()
+        raise
 
     request.status = "aprovado"
     request.avaliadoEm = datetime.utcnow()

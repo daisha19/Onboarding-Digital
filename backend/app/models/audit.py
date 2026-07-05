@@ -27,9 +27,9 @@ class LogAuditoria(Base):
         ForeignKey("usuario.idUsuario"),
         nullable=False,
     )
-    idDoc: Mapped[int] = mapped_column(
-        ForeignKey("documento.idDoc"),
-        nullable=False,
+    idDoc: Mapped[int | None] = mapped_column(
+        ForeignKey("documento.idDoc", ondelete="SET NULL"),
+        nullable=True,
     )
     nomeAcao: Mapped[str] = mapped_column(
         ForeignKey("acao_auditoria.nomeAcao"),
@@ -37,7 +37,7 @@ class LogAuditoria(Base):
     )
 
     usuario: Mapped["Usuario"] = relationship(back_populates="logsAuditoria")
-    documento: Mapped["Documento"] = relationship(back_populates="logsAuditoria")
+    documento: Mapped["Documento | None"] = relationship(back_populates="logsAuditoria")
     acaoAuditoria: Mapped["AcaoAuditoria"] = relationship(
         back_populates="logsAuditoria",
     )
