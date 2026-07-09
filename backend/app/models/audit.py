@@ -23,20 +23,23 @@ class LogAuditoria(Base):
     idAuditoria: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     descricao: Mapped[str] = mapped_column(String(255), nullable=False)
     dataHora: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    idUsuario: Mapped[int] = mapped_column(
-        ForeignKey("usuario.idUsuario"),
-        nullable=False,
+
+    idUsuario: Mapped[int | None] = mapped_column(
+        ForeignKey("usuario.idUsuario", ondelete="SET NULL"),
+        nullable=True,
     )
+
     idDoc: Mapped[int | None] = mapped_column(
         ForeignKey("documento.idDoc", ondelete="SET NULL"),
         nullable=True,
     )
+
     nomeAcao: Mapped[str] = mapped_column(
         ForeignKey("acao_auditoria.nomeAcao"),
         nullable=False,
     )
 
-    usuario: Mapped["Usuario"] = relationship(back_populates="logsAuditoria")
+    usuario: Mapped["Usuario | None"] = relationship(back_populates="logsAuditoria")
     documento: Mapped["Documento | None"] = relationship(back_populates="logsAuditoria")
     acaoAuditoria: Mapped["AcaoAuditoria"] = relationship(
         back_populates="logsAuditoria",
