@@ -30,7 +30,7 @@ def register_audit_log(
     *,
     action: str,
     description: str,
-    user_id: int,
+    user_id: int | None,
     document_id: int | None = None,
 ) -> LogAuditoria:
     log = LogAuditoria(
