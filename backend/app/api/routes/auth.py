@@ -11,6 +11,7 @@ from app.schemas.user import SolicitacaoCadastroCreate, SolicitacaoCadastroRespo
 from app.services.audit_service import (
     LOGIN_FAILURE,
     LOGIN_SUCCESS,
+    LOGOUT,
     register_audit_log,
 )
 from app.services.user_service import authenticate_user, create_registration_request
@@ -43,6 +44,25 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     return TokenResponse(
         accessToken=create_access_token(str(usuario.idUsuario)),
     )
+
+
+@router.post("/logout")
+def logout(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    try:
+        register_audit_log(
+            db=db,
+            action=LOGOUT,
+            description=f"Logout do usuário {current_user.email}.",
+            user_id=current_user.idUsuario,
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+
+    return {"message": "Logout registrado com sucesso."}
 
 
 @router.post("/register-request", response_model=SolicitacaoCadastroResponse, status_code=201)
