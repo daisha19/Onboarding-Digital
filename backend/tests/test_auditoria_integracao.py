@@ -297,6 +297,8 @@ def test_audit_failure_rolls_back_document_creation(test_client, monkeypatch):
         )
 
     assert db.query(Documento).count() == 0
+
+    
 def test_audit_logs_are_available_only_for_rh(test_client):
     client, db = test_client
     collaborator = create_collaborator(db)
