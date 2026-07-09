@@ -1,17 +1,10 @@
 from datetime import datetime
-
-from sqlalchemy import DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from app.db.base import Base 
-from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.models.document import Documento
@@ -51,8 +44,13 @@ class LogAuditoria(Base):
         nullable=False,
     )
 
-    usuario: Mapped["Usuario | None"] = relationship(back_populates="logsAuditoria")
-    documento: Mapped["Documento | None"] = relationship(back_populates="logsAuditoria")
+    usuario: Mapped["Usuario | None"] = relationship(
+    back_populates="logsAuditoria",
+    )
+
+    documento: Mapped["Documento | None"] = relationship(
+    back_populates="logsAuditoria",
+    )
     acaoAuditoria: Mapped["AcaoAuditoria"] = relationship(
         back_populates="logsAuditoria",
     )

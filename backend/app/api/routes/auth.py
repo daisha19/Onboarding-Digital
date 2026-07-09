@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -15,6 +17,8 @@ from app.services.audit_service import (
     register_audit_log,
 )
 from app.services.user_service import authenticate_user, create_registration_request
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -61,6 +65,7 @@ def logout(
         db.commit()
     except Exception:
         db.rollback()
+        logger.exception("Falha ao registrar auditoria de logout")
 
     return {"message": "Logout registrado com sucesso."}
 
