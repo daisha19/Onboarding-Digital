@@ -141,6 +141,93 @@ GOOGLE_APPLICATION_CREDENTIALS=C:\caminho\para\service-account.json
 Nao coloque chaves JSON ou credenciais reais no repositorio. Em producao, prefira
 usar a conta de servico do ambiente onde o backend estiver rodando.
 
+## Build e execução das imagens de produção
+
+Os `Dockerfile` do `backend/` e do `frontend/` têm um estágio de produção
+(`runtime`), separado do fluxo de desenvolvimento usado pelo `docker-compose.yml`.
+Esses são os artefatos que sobem no Cloud Run.
+
+Cada imagem é multi-stage e **valida lint, testes e build dentro do próprio
+`docker build`**: se `pytest` (backend) ou `npm run lint`/`npm run test`/`npm run build`
+(frontend) falharem, o build para e a imagem não é gerada.
+
+### Subir tudo localmente em modo produção (recomendado)
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml exec backend alembic upgrade head
+```
+
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:8001` (`/docs`, `/health`)
+
+O `docker-compose.prod.yml` usa `name: onboarding-digital-prod`, então roda em
+paralelo ao `docker-compose.yml` de desenvolvimento sem conflitar (redes, volumes
+e nomes de projeto são isolados). As únicas portas que podem colidir são as
+publicadas no host — ajuste se necessário:
+
+```bash
+BACKEND_HOST_PORT=8011 FRONTEND_HOST_PORT=3011 NEXT_PUBLIC_API_BASE_URL=http://localhost:8011 \
+  docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Para derrubar:
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+### Build e execução manual de cada imagem
+
+Backend (escuta na variável `PORT`, `8080` por padrão, sem `--reload`, roda como
+usuário não-root):
+
+```bash
+docker build -t onboarding-backend ./backend
+docker run --rm -p 8080:8080 \
+  -e DATABASE_URL=postgresql+psycopg2://usuario:senha@host:5432/onboarding_db \
+  -e SECRET_KEY=troque-por-uma-chave-forte \
+  onboarding-backend
+```
+
+Frontend — atenção: `NEXT_PUBLIC_API_BASE_URL` é **compilado dentro do bundle
+JavaScript no momento do `docker build`**, não é lido em runtime. Para apontar
+para outra API é preciso *refazer o build* com um novo `--build-arg`:
+
+```bash
+docker build \
+  --build-arg NEXT_PUBLIC_API_BASE_URL=https://sua-api-no-cloud-run \
+  -t onboarding-frontend ./frontend
+
+docker run --rm -p 8080:8080 onboarding-frontend
+```
+
+### Health checks
+
+Cada imagem tem um `HEALTHCHECK` nativo do Docker, além dos endpoints usados
+por load balancers / Cloud Run:
+
+| Serviço | Endpoint |
+|---|---|
+| Backend | `GET /health` (e `/health/db`, que também valida a conexão com o Postgres) |
+| Frontend | `GET /api/health` |
+| Banco | `pg_isready` (usado no `healthcheck` do serviço `db` no compose) |
+
+### Notas para o deploy no Cloud Run
+
+- O backend lê a porta de `$PORT` (Cloud Run injeta essa variável automaticamente).
+  Localmente, sem `$PORT` definida, o padrão é `8080`.
+- O frontend (`server.js` gerado pelo `output: "standalone"` do Next.js) também
+  respeita `$PORT`. O Dockerfile fixa `HOSTNAME=0.0.0.0` explicitamente — sem
+  isso, o servidor herda o `HOSTNAME` que o Docker injeta por padrão (o ID do
+  container) e escuta só nesse endereço interno, o que quebra health checks
+  feitos via `127.0.0.1`/`localhost`.
+- Nenhuma das imagens roda como root.
+- As migrations (`alembic upgrade head`) não rodam automaticamente no start do
+  container — isso é intencional, para evitar corridas quando há múltiplas
+  instâncias subindo ao mesmo tempo. Rode manualmente antes do deploy (ou como
+  um step separado no pipeline de CI/CD).
+
 # Status do Projeto
 
 🚧 Em desenvolvimento
