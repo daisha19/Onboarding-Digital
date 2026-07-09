@@ -20,6 +20,7 @@ from app.schemas.document import (
     DocumentoStatusUpdate,
     TipoDocumentoResponse,
 )
+from app.services.audit_service import DOWNLOAD_DOCUMENT, register_audit_log
 from app.services.document_service import (
     create_document,
     delete_document,
@@ -107,6 +108,20 @@ def download_document(
         id_doc=id_doc,
         current_user=current_user,
     )
+
+    try:
+        register_audit_log(
+            db=db,
+            action=DOWNLOAD_DOCUMENT,
+            description=f"Download do documento {documento.idDoc} concluído com sucesso.",
+            user_id=current_user.idUsuario,
+            document_id=documento.idDoc,
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.exception("Falha ao registrar auditoria de download de documento")
+
     return build_download_response(
         path=documento.caminhoArquivo,
         filename=documento.nomeArquivo,
