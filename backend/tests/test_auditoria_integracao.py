@@ -22,8 +22,14 @@ from app.models import (
     Usuario,
 )
 from app.services.audit_service import (
+    ACCESS_DENIED,
     APPROVE_DOCUMENT,
     CREATE_COLLABORATOR,
+    DELETE_DOCUMENT,
+    DOWNLOAD_DOCUMENT,
+    LOGIN_FAILURE,
+    LOGIN_SUCCESS,
+    LOGOUT,
     REJECT_DOCUMENT,
     REVIEW_DOCUMENT,
     UPLOAD_DOCUMENT,
@@ -71,11 +77,19 @@ def seed_audit_actions(db) -> None:
         REJECT_DOCUMENT: "Rejeição de documento",
         REVIEW_DOCUMENT: "Documento colocado em análise",
         CREATE_COLLABORATOR: "Cadastro de colaborador",
+        LOGIN_SUCCESS: "Login bem-sucedido",
+        LOGIN_FAILURE: "Falha de login",
+        LOGOUT: "Logout",
+        DOWNLOAD_DOCUMENT: "Download de documento",
+        DELETE_DOCUMENT: "Exclusão de documento",
+        ACCESS_DENIED: "Acesso negado",
     }
     db.add_all(
-        [AcaoAuditoria(nomeAcao=name, descricao=description) for name, description in descriptions.items()]
+        [
+            AcaoAuditoria(nomeAcao=name, descricao=description)
+            for name, description in descriptions.items()
+        ]
     )
-
 
 def create_rh(db) -> Usuario:
     user = Usuario(nome="RH", email="rh@example.com", senha="hash")
@@ -283,3 +297,15 @@ def test_audit_failure_rolls_back_document_creation(test_client, monkeypatch):
         )
 
     assert db.query(Documento).count() == 0
+def test_audit_logs_are_available_only_for_rh(test_client):
+    client, db = test_client
+    collaborator = create_collaborator(db)
+    seed_audit_actions(db)
+    db.commit()
+
+    response = client.get(
+        "/auditoria/",
+        headers=auth_headers(collaborator),
+    )
+
+    assert response.status_code == 403
