@@ -11,6 +11,13 @@ REJECT_DOCUMENT = "rejeitar_documento"
 REVIEW_DOCUMENT = "marcar_documento_em_analise"
 CREATE_COLLABORATOR = "cadastrar_colaborador"
 
+LOGIN_SUCCESS = "login_sucesso"
+LOGIN_FAILURE = "login_falha"
+LOGOUT = "logout"
+DOWNLOAD_DOCUMENT = "download_documento"
+DELETE_DOCUMENT = "excluir_documento"
+ACCESS_DENIED = "acesso_negado"
+
 DOCUMENT_STATUS_ACTIONS = {
     "aprovado": APPROVE_DOCUMENT,
     "rejeitado": REJECT_DOCUMENT,
@@ -23,7 +30,7 @@ def register_audit_log(
     *,
     action: str,
     description: str,
-    user_id: int,
+    user_id: int | None,
     document_id: int | None = None,
 ) -> LogAuditoria:
     log = LogAuditoria(
