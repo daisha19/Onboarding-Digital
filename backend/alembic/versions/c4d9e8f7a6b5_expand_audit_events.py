@@ -23,6 +23,12 @@ _ACTIONS = (
     ("rejeitar_documento", "Rejeição de documento"),
     ("marcar_documento_em_analise", "Documento colocado em análise"),
     ("cadastrar_colaborador", "Cadastro de colaborador"),
+    ("login_sucesso", "Login bem-sucedido"),
+    ("login_falha", "Falha de login"),
+    ("logout", "Logout"),
+    ("download_documento", "Download de documento"),
+    ("excluir_documento", "Exclusao de documento"),
+    ("acesso_negado", "Acesso negado"),
 )
 
 
