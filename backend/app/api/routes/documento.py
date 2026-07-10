@@ -20,6 +20,12 @@ from app.schemas.document import (
     DocumentoStatusUpdate,
     TipoDocumentoResponse,
 )
+from app.services.audit_service import (
+    ACCESS_DENIED,
+    DELETE_DOCUMENT,
+    DOWNLOAD_DOCUMENT,
+    register_audit_log,
+)
 from app.services.document_service import (
     create_document,
     delete_document,
@@ -50,7 +56,6 @@ def list_document_types(
 ):
     return db.query(TipoDocumento).all()
 
-
 def _get_allowed_document(
     *,
     db: Session,
@@ -73,12 +78,23 @@ def _get_allowed_document(
     ):
         return documento
 
+    try:
+        register_audit_log(
+            db=db,
+            action=ACCESS_DENIED,
+            description=f"Acesso negado ao documento {id_doc}.",
+            user_id=current_user.idUsuario,
+            document_id=id_doc,
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.exception("Falha ao registrar auditoria de acesso negado")
+
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Voce nao tem permissao para acessar este documento.",
     )
-
-
 @router.get("/", response_model=list[DocumentoResponse])
 def list_documents(
     db: Session = Depends(get_db),
@@ -107,6 +123,20 @@ def download_document(
         id_doc=id_doc,
         current_user=current_user,
     )
+
+    try:
+        register_audit_log(
+            db=db,
+            action=DOWNLOAD_DOCUMENT,
+            description=f"Download do documento {documento.idDoc} concluído com sucesso.",
+            user_id=current_user.idUsuario,
+            document_id=documento.idDoc,
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.exception("Falha ao registrar auditoria de download de documento")
+
     return build_download_response(
         path=documento.caminhoArquivo,
         filename=documento.nomeArquivo,
@@ -125,7 +155,6 @@ def get_document(
         current_user=current_user,
     )
 
-
 @router.delete("/{id_doc}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_document(
     id_doc: int,
@@ -137,8 +166,26 @@ def remove_document(
         id_doc=id_doc,
         current_user=current_user,
     )
+
+    document_id = documento.idDoc
+    document_name = documento.nomeArquivo
+
     delete_stored_file(path=documento.caminhoArquivo)
     delete_document(db, documento)
+
+    try:
+        register_audit_log(
+            db=db,
+            action=DELETE_DOCUMENT,
+            description=f"Documento {document_id} ({document_name}) excluído com sucesso.",
+            user_id=current_user.idUsuario,
+            document_id=None,
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        logger.exception("Falha ao registrar auditoria de exclusão de documento")
+
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
