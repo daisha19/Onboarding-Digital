@@ -1,9 +1,14 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.document import Documento
+    from app.models.user import Usuario
 
 
 class AcaoAuditoria(Base):
@@ -23,21 +28,29 @@ class LogAuditoria(Base):
     idAuditoria: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     descricao: Mapped[str] = mapped_column(String(255), nullable=False)
     dataHora: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    idUsuario: Mapped[int] = mapped_column(
-        ForeignKey("usuario.idUsuario"),
-        nullable=False,
+
+    idUsuario: Mapped[int | None] = mapped_column(
+        ForeignKey("usuario.idUsuario", ondelete="SET NULL"),
+        nullable=True,
     )
-    idDoc: Mapped[int] = mapped_column(
-        ForeignKey("documento.idDoc"),
-        nullable=False,
+
+    idDoc: Mapped[int | None] = mapped_column(
+        ForeignKey("documento.idDoc", ondelete="SET NULL"),
+        nullable=True,
     )
+
     nomeAcao: Mapped[str] = mapped_column(
         ForeignKey("acao_auditoria.nomeAcao"),
         nullable=False,
     )
 
-    usuario: Mapped["Usuario"] = relationship(back_populates="logsAuditoria")
-    documento: Mapped["Documento"] = relationship(back_populates="logsAuditoria")
+    usuario: Mapped["Usuario | None"] = relationship(
+    back_populates="logsAuditoria",
+    )
+
+    documento: Mapped["Documento | None"] = relationship(
+    back_populates="logsAuditoria",
+    )
     acaoAuditoria: Mapped["AcaoAuditoria"] = relationship(
         back_populates="logsAuditoria",
     )
