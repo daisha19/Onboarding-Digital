@@ -17,9 +17,13 @@ services:
       timeout: 5s
       retries: 5
 
-  # API em modo desenvolvimento. Para producao, remover --reload do Dockerfile.
+  # API em modo desenvolvimento, com --reload e codigo montado por volume.
+  # A imagem de producao (sem --reload, target "runtime") esta em docker-compose.prod.yml.
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: base
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     container_name: onboarding_backend
     restart: always
     depends_on:

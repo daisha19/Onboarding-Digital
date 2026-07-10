@@ -1,0 +1,38 @@
+# Controle de versao
+.git
+.gitignore
+
+# Ambientes virtuais e caches Python
+.venv/
+.venv-*/
+venv/
+env/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Segredos e configuracao local (nunca devem ir para a imagem)
+.env
+.env.*
+!.env.example
+.secrets/
+*service-account*.json
+*google-credentials*.json
+gcp-key*.json
+
+# Dados de runtime que nao pertencem a imagem
+uploads/
+
+# Editores / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Docs e outros artefatos que nao sao necessarios para rodar a API
+README.md
