@@ -16,6 +16,16 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     UPLOAD_MAX_SIZE_MB: int = 10
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    DOCUMENT_STORAGE_BACKEND: str = "local"
+    GCS_BUCKET_NAME: str = ""
+    GCS_UPLOAD_PREFIX: str = "documentos"
+    LOCAL_UPLOAD_DIR: str = "uploads"
+    SMTP_HOST: str | None = None
+    SMTP_PORT: int = 587
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    SMTP_USE_TLS: bool = True
+    EMAIL_FROM: str | None = None
 
     @property
     def cors_origins(self) -> list[str]:

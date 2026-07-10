@@ -1,0 +1,103 @@
+# Stack de producao para validacao local, antes do deploy no Google Cloud.
+# Diferencas em relacao ao docker-compose.yml de desenvolvimento:
+#   - backend usa o target "runtime" (sem --reload, sem volume, roda como usuario nao-root)
+#   - frontend roda a partir do build standalone do Next.js, tambem nao-root
+#   - nada e' montado por volume: as imagens sao o artefato final
+#
+# Uso:
+#   docker compose -f docker-compose.prod.yml up -d --build
+#   docker compose -f docker-compose.prod.yml exec backend alembic upgrade head
+#
+# NEXT_PUBLIC_API_BASE_URL e' inlinado no build do frontend (limitacao do Next.js).
+# Se quiser apontar para outra API, defina a variavel antes do build ou refaca-o:
+#   NEXT_PUBLIC_API_BASE_URL=https://sua-api docker compose -f docker-compose.prod.yml build frontend
+#
+# "name" fixa o projeto do Compose. Sem isso, o nome seria inferido do diretorio
+# e colidiria com o projeto do docker-compose.yml de desenvolvimento (mesmos nomes
+# de servico "db"/"backend"), fazendo o Compose recriar os containers de dev por engano.
+name: onboarding-digital-prod
+
+services:
+  db:
+    image: postgres:15
+    container_name: onboarding_db_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      target: runtime
+    container_name: onboarding_backend_prod
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: "8080"
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      UPLOAD_MAX_SIZE_MB: ${UPLOAD_MAX_SIZE_MB}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS}
+      DOCUMENT_STORAGE_BACKEND: ${DOCUMENT_STORAGE_BACKEND:-local}
+      LOCAL_UPLOAD_DIR: ${LOCAL_UPLOAD_DIR:-uploads}
+      GCS_BUCKET_NAME: ${GCS_BUCKET_NAME:-}
+      GCS_UPLOAD_PREFIX: ${GCS_UPLOAD_PREFIX:-documentos}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+    ports:
+      - "${BACKEND_HOST_PORT:-8001}:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8001}
+    container_name: onboarding_frontend_prod
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_HOST_PORT:-3000}:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:8080/api/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data_prod:

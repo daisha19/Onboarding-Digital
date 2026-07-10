@@ -17,17 +17,23 @@ services:
       timeout: 5s
       retries: 5
 
-  # API em modo desenvolvimento. Para producao, remover --reload do Dockerfile.
+  # API em modo desenvolvimento, com --reload e codigo montado por volume.
+  # A imagem de producao (sem --reload, target "runtime") esta em docker-compose.prod.yml.
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: base
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     container_name: onboarding_backend
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
-      - "8000:8000"
+      - "${BACKEND_HOST_PORT:-8001}:8000"
     volumes:
       - ./backend:/app
+      - ./.secrets:/app/.secrets:ro
     environment:
       # Valores carregados do .env local.
       DATABASE_URL: ${DATABASE_URL}
@@ -35,6 +41,17 @@ services:
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
       UPLOAD_MAX_SIZE_MB: ${UPLOAD_MAX_SIZE_MB}
       BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS}
+      DOCUMENT_STORAGE_BACKEND: ${DOCUMENT_STORAGE_BACKEND:-local}
+      LOCAL_UPLOAD_DIR: ${LOCAL_UPLOAD_DIR:-uploads}
+      GCS_BUCKET_NAME: ${GCS_BUCKET_NAME:-}
+      GCS_UPLOAD_PREFIX: ${GCS_UPLOAD_PREFIX:-documentos}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      EMAIL_FROM: ${EMAIL_FROM:-}
     healthcheck:
       test:
         [

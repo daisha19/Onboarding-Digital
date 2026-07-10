@@ -1,8 +1,8 @@
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import Stats from "./components/Stats";
-import CTA from "./components/CTA";
-import Footer from "./components/Footer";
+import Header from "./Tela Inicial/Header";
+import Hero from "./Tela Inicial/Hero";
+import Stats from "./Tela Inicial/Stats";
+import CTA from "./Tela Inicial/CTA";
+import Footer from "./Tela Inicial/Footer";
 
 export default function Home() {
   return (
