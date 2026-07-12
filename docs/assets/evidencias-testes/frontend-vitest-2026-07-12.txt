@@ -1,0 +1,13 @@
+
+> frontend@0.1.0 test
+> vitest run --environment jsdom
+
+
+ RUN  v4.1.9 C:/Users/raiss/OneDrive/Documentos/OnBoardingDigital/Onboarding-Digital/frontend
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  20:47:10
+   Duration  7.17s (transform 283ms, setup 0ms, import 1.86s, tests 520ms, environment 4.55s)
+
