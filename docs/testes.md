@@ -22,8 +22,6 @@ Execução realizada em `12/07/2026`, em ambiente local de desenvolvimento.
 | Backend test runner | pytest |
 | Frontend test runner | Vitest com jsdom |
 
-!!! note "Observação sobre o frontend"
-    O `package.json` do frontend define Node.js `24.18.0` e npm `11.16.x` como versões esperadas para o pipeline. A execução local registrada nesta página foi feita com Node.js `22.15.0` e npm `10.9.2`, mas a suíte automatizada passou nesse ambiente.
 
 ## Backend
 

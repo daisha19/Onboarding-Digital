@@ -6,8 +6,8 @@ Os requisitos abaixo descrevem as funcionalidades, regras de qualidade e restri�
 
 | ID | Requisito | Prioridade |
 |---|---|---|
-| RF01 | Permitir cadastro de usuários com perfil de colaborador. | Alta |
-| RF02 | Permitir cadastro de usuários com perfil de RH. | Alta |
+| RF01 | Permitir solicitação de cadastro de usuários com perfil de colaborador. | Alta |
+| RF02 | Permitir solicitação de cadastro de usuários com perfil de RH. | Alta |
 | RF03 | Permitir autenticação utilizando e-mail e senha. | Alta |
 | RF04 | Armazenar senhas utilizando criptografia segura. | Alta |
 | RF05 | Gerar token de autenticação após login válido. | Alta |

@@ -9,7 +9,7 @@ Entregar uma primeira versão funcional capaz de:
 - Cadastrar e autenticar usuários.
 - Diferenciar permissões entre colaborador e RH.
 - Permitir envio de documentos admissionais.
-- Permitir que o RH visualize e valide documentos.
+- Permitir que o RH visualize, valide documentos e aprove novos usuários.
 - Registrar informações importantes para auditoria.
 
 ## Perfis do Sistema
@@ -17,13 +17,13 @@ Entregar uma primeira versão funcional capaz de:
 | Perfil | Responsabilidades |
 |---|---|
 | Colaborador (`employee`) | Enviar documentos, acompanhar status e visualizar apenas seus próprios arquivos. |
-| RH (`hr`) | Visualizar documentos de colaboradores, validar envios, solicitar reenvio e acompanhar logs. |
+| RH (`hr`) | Visualizar documentos de colaboradores, validar envios e novos usuários, solicitar reenvio e acompanhar logs. |
 
 ## Escopo do MVP
 
 ### Colaborador
 
-- Criar conta.
+- Solicitar acesso.
 - Fazer login.
 - Enviar documentos em PDF ou imagem.
 - Visualizar documentos enviados.
@@ -35,6 +35,7 @@ Entregar uma primeira versão funcional capaz de:
 - Listar colaboradores e documentos enviados.
 - Visualizar ou baixar documentos.
 - Aprovar documentos válidos.
+- Aprovar novos usuários
 - Rejeitar documentos inválidos com justificativa.
 - Solicitar reenvio quando necessário.
 
