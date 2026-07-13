@@ -120,23 +120,23 @@ O produto substitui etapas manuais baseadas em e-mails, planilhas e arquivos esp
   </article>
   <article class="od-member">
     <img src="https://github.com/guin409.png" alt="Guilherme Negreiros Pereira">
-    <div><strong>Guilherme Negreiros Pereira</strong><span>Desenvolvimento</span></div>
+    <div><strong>Guilherme Negreiros Pereira</strong><span>DevOps/ BackEnd</span></div>
   </article>
   <article class="od-member">
     <img src="https://github.com/ninaalves14.png" alt="Nina Rosa Alves Amorim">
-    <div><strong>Nina Rosa Alves Amorim</strong><span>Desenvolvimento</span></div>
+    <div><strong>Nina Rosa Alves Amorim</strong><span>BackEnd</span></div>
   </article>
   <article class="od-member">
     <img src="https://github.com/Edupizzol.png" alt="Eduardo Jesus Dal Pizzol">
-    <div><strong>Eduardo Jesus Dal Pizzol</strong><span>Desenvolvimento</span></div>
+    <div><strong>Eduardo Jesus Dal Pizzol</strong><span>FrontEnd</span></div>
   </article>
   <article class="od-member">
     <img src="https://github.com/mateiki.png" alt="Matheus Eiki Kimura Rezende">
-    <div><strong>Matheus Eiki Kimura Rezende</strong><span>Desenvolvimento</span></div>
+    <div><strong>Matheus Eiki Kimura Rezende</strong><span>FrontEnd</span></div>
   </article>
   <article class="od-member">
     <img src="https://github.com/marrathomaz.png" alt="Thomaz Marra Martins">
-    <div><strong>Thomaz Marra Martins</strong><span>Desenvolvimento</span></div>
+    <div><strong>Thomaz Marra Martins</strong><span>BackEnd</span></div>
   </article>
 </section>
 
