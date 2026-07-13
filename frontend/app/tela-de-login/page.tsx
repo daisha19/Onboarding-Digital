@@ -118,7 +118,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="seu@email.com"
-              className={`w-full px-4 py-3 rounded-lg border ${errors.email ? "border-red-200 bg-red-50" : "border-zinc-100 bg-zinc-50"}`}
+              className={`w-full px-4 py-3 rounded-lg border text-zinc-900 ${errors.email ? "border-red-200 bg-red-50" : "border-zinc-100 bg-zinc-50"}`}
               aria-invalid={errors.email ? "true" : "false"}
               aria-describedby={errors.email ? "email-error" : undefined}
             />
@@ -140,7 +140,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"
-                className={`w-full pr-20 px-4 py-3 rounded-lg border ${errors.password ? "border-red-200 bg-red-50" : "border-zinc-100 bg-zinc-50"}`}
+                className={`w-full pr-20 px-4 py-3 rounded-lg border text-zinc-900 ${errors.password ? "border-red-200 bg-red-50" : "border-zinc-100 bg-zinc-50"}`}
                 aria-invalid={errors.password ? "true" : "false"}
                 aria-describedby={errors.password ? "password-error" : undefined}
               />
