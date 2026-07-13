@@ -115,14 +115,8 @@ O workflow do frontend executa:
 - testes automatizados;
 - build da aplicação.
 
-## Próximas Evidências Recomendadas
-
-- Adicionar prints da aba **Actions** do GitHub com os workflows aprovados.
-- Salvar evidências de testes manuais dos fluxos principais, como login, envio de documento, análise pelo RH e auditoria.
-- Registrar novas execuções quando houver mudanças relevantes nas regras de negócio.
-
 ## Histórico de Revisão
 
 | Data | Versão | Autor | Descrição |
 |---|---|---|---|
-| 12/07/2026 | 1.0 | Codex | Inclusão da seção de testes com evidências de execução local. |
+| 12/07/2026 | 1.0 | Raissa Oliveira | Inclusão da seção de testes com evidências de execução local. |
