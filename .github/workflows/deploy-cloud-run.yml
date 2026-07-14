@@ -52,7 +52,7 @@ jobs:
         run: |
           BACKEND_IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPOSITORY}/${BACKEND_SERVICE}:main-${GITHUB_SHA}"
           echo "BACKEND_IMAGE=${BACKEND_IMAGE}" >> "$GITHUB_ENV"
-          gcloud builds submit ./backend --tag "$BACKEND_IMAGE"
+          gcloud builds submit ./backend --tag "$BACKEND_IMAGE" --suppress-logs
 
       - name: Deploy backend
         run: |
@@ -98,7 +98,7 @@ jobs:
             - ${FRONTEND_IMAGE}
           EOF
 
-          gcloud builds submit ./frontend --config /tmp/frontend-cloudbuild.yaml
+          gcloud builds submit ./frontend --config /tmp/frontend-cloudbuild.yaml --suppress-logs
 
       - name: Deploy frontend
         run: |
